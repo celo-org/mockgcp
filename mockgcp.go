@@ -31,16 +31,16 @@ func NewClient() *GCPClient {
 }
 
 func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
-	return client.Service.Project.SetIamPolicy(resource, setiampolicyrequest)
+	return client.Service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
 
 func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
-	return client.Service.Folder.SetIamPolicy(resource, setiampolicyrequest)
+	return client.Service.Folders.SetIamPolicy(resource, setiampolicyrequest)
 }
 
 type MockService struct {
-	Project *ProjectsService
-	Folder  *FoldersService
+	Projects *ProjectsService
+	Folders  *FoldersService
 }
 
 func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService, error) {
@@ -58,13 +58,13 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService,
 
 func New(client *http.Client) (*MockService, error) {
 	s := &MockService{}
-	s.Folder = NewFoldersService(s)
+	s.Folders = NewFoldersService(s)
 	//s.Organizations = NewOrganizationsService(s)
 	/*
 		s.Liens = NewLiensService(s)
 		s.Operations = NewOperationsService(s)
 	*/
-	s.Project = NewProjectsService(s)
+	s.Projects = NewProjectsService(s)
 	/*
 		s.TagBindings = NewTagBindingsService(s)
 		s.TagKeys = NewTagKeysService(s)
@@ -85,7 +85,7 @@ type Folder struct {
 
 type ProjectsService struct {
 	Service *MockService
-	Projects []*Project
+	ProjectList []*Project
 }
 
 func NewProjectsService(s *MockService) *ProjectsService {
@@ -115,7 +115,7 @@ type ProjectsGetIamPolicyCall struct {
 
 func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var policy *cloudresourcemanager.Policy
-	for _, project := range c.Service.Project.Projects {
+	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
 			policy = project.Policy
 		}
@@ -135,7 +135,7 @@ type ProjectsSetIamPolicyCall struct {
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
-	for _, project := range c.Service.Project.Projects {
+	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
 			found = true
 			project.Policy = c.Setiampolicyrequest.Policy
@@ -151,7 +151,7 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 
 type FoldersService struct {
 	Service *MockService
-	Folders []*Folder
+	FolderList []*Folder
 }
 
 func NewFoldersService(s *MockService) *FoldersService {
@@ -181,7 +181,7 @@ type FoldersGetIamPolicyCall struct {
 
 func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var policy *cloudresourcemanager.Policy
-	for _, folder := range c.Service.Folder.Folders {
+	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
 			policy = folder.Policy
 		}
@@ -204,7 +204,7 @@ type FoldersSetIamPolicyCall struct {
 func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
-	for _, folder := range c.Service.Folder.Folders {
+	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
 			found = true
 			folder.Policy = c.Setiampolicyrequest.Policy
