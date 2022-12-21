@@ -14,6 +14,9 @@ import (
 
 )
 
+type SetPolicyCallItf interface {
+    Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error)
+}
 
 type GCPClient struct {
     service *MockService
@@ -24,10 +27,10 @@ func NewClient() *GCPClient{
     return &GCPClient{service: service}
 }
 
-func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *ProjectsSetIamPolicyCall {
+//func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *ProjectsSetIamPolicyCall {
+func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
     return client.service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
-
 
 type MockService struct {
 	Projects *ProjectsService
@@ -85,6 +88,8 @@ func (r *ProjectsService) GetIamPolicy(resource string, getiampolicyrequest *clo
 	return c
 }
 
+
+
 func (r *ProjectsService) SetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *ProjectsSetIamPolicyCall {
 	c := &ProjectsSetIamPolicyCall{s: r.s}
 	c.resource = resource
@@ -115,9 +120,9 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 type ProjectsSetIamPolicyCall struct {
 	s        *MockService
 	resource string
-	//    ctx_                context.Context
 	setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
+
 
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 /*
