@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -26,7 +27,7 @@ type GCPClient struct {
 }
 
 func NewClient() *GCPClient {
-	service, _ := NewService(context.TODO())
+	Service, _ := NewService(context.TODO())
 	return &GCPClient{Service: service}
 }
 
@@ -139,6 +140,7 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 		if project.ProjectID == c.Resource {
 			found = true
 			project.Policy = c.Setiampolicyrequest.Policy
+            log.Printf("PROJECT POLICY IS %v", project.Policy)
 		}
 	}
 
