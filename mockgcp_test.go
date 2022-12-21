@@ -14,7 +14,7 @@ func TestProject_GetIamPolicy_Do(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
 
-		_, err:= service.Projects.GetIamPolicy(projectID, request).Do()
+		_, err:= service.Project.GetIamPolicy(projectID, request).Do()
 
 		if err == nil {
 			t.Errorf("expected an error but got none")
@@ -29,10 +29,10 @@ func TestProject_GetIamPolicy_Do(t *testing.T) {
 		project := NewProject(projectID, policy)
 		projects := append(GenerateProjects(5), project)
 
-		service.Projects.p = append(service.Projects.p, projects...)
+		service.Project.Projects = append(service.Project.Projects, projects...)
 
 		want := policy
-		got, _ := service.Projects.GetIamPolicy(projectID, request).Do()
+		got, _ := service.Project.GetIamPolicy(projectID, request).Do()
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -47,12 +47,12 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		policy := GeneratePolicy(nil)
 		request.Policy = policy
 
-		service.Projects.p = append(service.Projects.p, NewProject(projectID, nil))
+		service.Project.Projects = append(service.Project.Projects, NewProject(projectID, nil))
 
-		service.Projects.SetIamPolicy(projectID, request).Do()
+		service.Project.SetIamPolicy(projectID, request).Do()
 
 		want := policy
-		got := service.Projects.p[0].policy
+		got := service.Project.Projects[0].Policy
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -66,7 +66,7 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		policy := GeneratePolicy(nil)
 		request.Policy = policy
 
-		_, err := service.Projects.SetIamPolicy(projectID, request).Do()
+		_, err := service.Project.SetIamPolicy(projectID, request).Do()
 
 		if err == nil {
 			t.Errorf("expected an error but got none")
@@ -81,7 +81,7 @@ func TestFolder_GetIamPolicy_Do(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
 
-		_, err:= service.Folders.GetIamPolicy(folderID, request).Do()
+		_, err:= service.Folder.GetIamPolicy(folderID, request).Do()
 
 		if err == nil {
 			t.Errorf("expected an error but got none")
@@ -97,10 +97,10 @@ func TestFolder_GetIamPolicy_Do(t *testing.T) {
 		folder := NewFolder(folderID, policy)
 		folders := append(GenerateFolders(5), folder)
 
-		service.Folders.f = append(service.Folders.f, folders...)
+		service.Folder.Folders = append(service.Folder.Folders, folders...)
 
 		want := policy
-		got, _ := service.Folders.GetIamPolicy(folderID, request).Do()
+		got, _ := service.Folder.GetIamPolicy(folderID, request).Do()
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -113,7 +113,7 @@ func TestFolder_GetIamPolicy_Do(t *testing.T) {
 		policy := GeneratePolicy(nil)
 		request.Policy = policy
 
-		_, err := service.Folders.SetIamPolicy(folderID, request).Do()
+		_, err := service.Folder.SetIamPolicy(folderID, request).Do()
 
 		if err == nil {
 			t.Errorf("expected an error but got none %v", err)

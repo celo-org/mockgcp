@@ -31,16 +31,16 @@ func NewClient() *GCPClient {
 }
 
 func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
-	return client.Service.Projects.SetIamPolicy(resource, setiampolicyrequest)
+	return client.Service.Project.SetIamPolicy(resource, setiampolicyrequest)
 }
 
 func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
-	return client.Service.Folders.SetIamPolicy(resource, setiampolicyrequest)
+	return client.Service.Folder.SetIamPolicy(resource, setiampolicyrequest)
 }
 
 type MockService struct {
-	Projects *ProjectsService
-	Folders  *FoldersService
+	Project *ProjectsService
+	Folder  *FoldersService
 }
 
 func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService, error) {
@@ -58,13 +58,13 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService,
 
 func New(client *http.Client) (*MockService, error) {
 	s := &MockService{}
-	s.Folders = NewFoldersService(s)
+	s.Folder = NewFoldersService(s)
 	//s.Organizations = NewOrganizationsService(s)
 	/*
 		s.Liens = NewLiensService(s)
 		s.Operations = NewOperationsService(s)
 	*/
-	s.Projects = NewProjectsService(s)
+	s.Project = NewProjectsService(s)
 	/*
 		s.TagBindings = NewTagBindingsService(s)
 		s.TagKeys = NewTagKeysService(s)
@@ -74,121 +74,121 @@ func New(client *http.Client) (*MockService, error) {
 }
 
 type Project struct {
-	projectID string
-	policy    *cloudresourcemanager.Policy
+	ProjectID string
+	Policy    *cloudresourcemanager.Policy
 }
 
 type Folder struct {
-	folderID string
-	policy   *cloudresourcemanager.Policy
+	FolderID string
+	Policy   *cloudresourcemanager.Policy
 }
 
 type ProjectsService struct {
-	s *MockService
-	p []*Project
+	Service *MockService
+	Projects []*Project
 }
 
 func NewProjectsService(s *MockService) *ProjectsService {
-	rs := &ProjectsService{s: s}
+	rs := &ProjectsService{Service: s}
 	return rs
 }
 
 func (r *ProjectsService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *ProjectsGetIamPolicyCall {
-	c := &ProjectsGetIamPolicyCall{s: r.s}
-	c.resource = resource
-	c.getiampolicyrequest = getiampolicyrequest
+	c := &ProjectsGetIamPolicyCall{Service: r.Service}
+	c.Resource = resource
+	c.Getiampolicyrequest = getiampolicyrequest
 	return c
 }
 
 func (r *ProjectsService) SetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *ProjectsSetIamPolicyCall {
-	c := &ProjectsSetIamPolicyCall{s: r.s}
-	c.resource = resource
-	c.setiampolicyrequest = setiampolicyrequest
+	c := &ProjectsSetIamPolicyCall{Service: r.Service}
+	c.Resource = resource
+	c.Setiampolicyrequest = setiampolicyrequest
 	return c
 }
 
 type ProjectsGetIamPolicyCall struct {
-	s                   *MockService
-	resource            string
-	getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
+	Service                   *MockService
+	Resource            string
+	Getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
 }
 
 func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var policy *cloudresourcemanager.Policy
-	for _, project := range c.s.Projects.p {
-		if project.projectID == c.resource {
-			policy = project.policy
+	for _, project := range c.Service.Project.Projects {
+		if project.ProjectID == c.Resource {
+			policy = project.Policy
 		}
 	}
 	if policy == nil {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.resource)
+        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 	}
 	return policy, nil
 }
 
 type ProjectsSetIamPolicyCall struct {
-	s                   *MockService
-	resource            string
-	setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
+	Service                 *MockService
+	Resource            string
+	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
 
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
-	for _, project := range c.s.Projects.p {
-		if project.projectID == c.resource {
+	for _, project := range c.Service.Project.Projects {
+		if project.ProjectID == c.Resource {
 			found = true
-			project.policy = c.setiampolicyrequest.Policy
+			project.Policy = c.Setiampolicyrequest.Policy
 		}
 	}
 
 	if !found {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.resource)
+        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 	}
 
-	return c.setiampolicyrequest.Policy, nil
+	return c.Setiampolicyrequest.Policy, nil
 }
 
 type FoldersService struct {
-	s *MockService
-	f []*Folder
+	Service *MockService
+	Folders []*Folder
 }
 
 func NewFoldersService(s *MockService) *FoldersService {
-	rs := &FoldersService{s: s}
+	rs := &FoldersService{Service: s}
 	return rs
 }
 
 func (r *FoldersService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *FoldersGetIamPolicyCall {
-	c := &FoldersGetIamPolicyCall{s: r.s}
-	c.resource = resource
-	c.getiampolicyrequest = getiampolicyrequest
+	c := &FoldersGetIamPolicyCall{Service: r.Service}
+	c.Resource = resource
+	c.Getiampolicyrequest = getiampolicyrequest
 	return c
 }
 
 func (r *FoldersService) SetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *FoldersSetIamPolicyCall {
-	c := &FoldersSetIamPolicyCall{s: r.s}
-	c.resource = resource
-	c.setiampolicyrequest = setiampolicyrequest
+	c := &FoldersSetIamPolicyCall{Service: r.Service}
+	c.Resource = resource
+	c.Setiampolicyrequest = setiampolicyrequest
 	return c
 }
 
 type FoldersGetIamPolicyCall struct {
-	s                   *MockService
-	resource            string
-	getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
+	Service                   *MockService
+	Resource            string
+	Getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
 }
 
 func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var policy *cloudresourcemanager.Policy
-	for _, folder := range c.s.Folders.f {
-		if folder.folderID == c.resource {
-			policy = folder.policy
+	for _, folder := range c.Service.Folder.Folders {
+		if folder.FolderID == c.Resource {
+			policy = folder.Policy
 		}
 	}
 
 	if policy == nil {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.resource)
+        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 
 	}
 
@@ -196,26 +196,26 @@ func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 }
 
 type FoldersSetIamPolicyCall struct {
-	s                   *MockService
-	resource            string
-	setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
+	Service                   *MockService
+	Resource            string
+	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
 
 func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
-	for _, folder := range c.s.Folders.f {
-		if folder.folderID == c.resource {
+	for _, folder := range c.Service.Folder.Folders {
+		if folder.FolderID == c.Resource {
 			found = true
-			folder.policy = c.setiampolicyrequest.Policy
+			folder.Policy = c.Setiampolicyrequest.Policy
 		}
 	}
 
 	if !found {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.resource)
+        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 	}
 
-	return c.setiampolicyrequest.Policy, nil
+	return c.Setiampolicyrequest.Policy, nil
 }
 
 // These functions below don't emulate anything in the GCP API, they're just for making test data easily
@@ -242,8 +242,8 @@ func NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project 
 		policy = &cloudresourcemanager.Policy{}
 	}
 	return &Project{
-		projectID: projectID,
-		policy:    policy,
+		ProjectID: projectID,
+		Policy:    policy,
 	}
 }
 
@@ -265,8 +265,8 @@ func NewFolder(folderID string, policy *cloudresourcemanager.Policy) *Folder {
 		policy = &cloudresourcemanager.Policy{}
 	}
 	return &Folder{
-		folderID: folderID,
-		policy:   policy,
+		FolderID: folderID,
+		Policy:   policy,
 	}
 }
 
