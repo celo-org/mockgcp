@@ -27,13 +27,17 @@ func NewClient() *GCPClient{
     return &GCPClient{service: service}
 }
 
-//func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *ProjectsSetIamPolicyCall {
 func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
     return client.service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
 
+func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
+    return client.service.Folders.SetIamPolicy(resource, setiampolicyrequest)
+}
+
 type MockService struct {
 	Projects *ProjectsService
+    Folders  *FoldersService
 }
 
 func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService, error) {
@@ -51,11 +55,11 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService,
 
 func New(client *http.Client) (*MockService, error) {
 	s := &MockService{}
-	/*
 		s.Folders = NewFoldersService(s)
+		//s.Organizations = NewOrganizationsService(s)
+        /*
 		s.Liens = NewLiensService(s)
 		s.Operations = NewOperationsService(s)
-		s.Organizations = NewOrganizationsService(s)
 	*/
 	s.Projects = NewProjectsService(s)
 	/*
@@ -68,6 +72,11 @@ func New(client *http.Client) (*MockService, error) {
 
 type Project struct {
 	projectID string
+	policy    *cloudresourcemanager.Policy
+}
+
+type Folder struct {
+	folderID string
 	policy    *cloudresourcemanager.Policy
 }
 
@@ -101,7 +110,6 @@ type ProjectsGetIamPolicyCall struct {
 	s                   *MockService
 	resource            string
 	getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
-	// ctx_                context.Context
 }
 
 func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
@@ -125,17 +133,87 @@ type ProjectsSetIamPolicyCall struct {
 
 
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-/*
-	project := &Project{projectID: c.resource, policy: c.setiampolicyrequest.Policy}
-	c.s.Projects.p = append(c.s.Projects.p, project)
-	return project.policy, nil
-    */
     var found bool
 
     for _, project := range c.s.Projects.p {
         if project.projectID == c.resource {
             found = true
             project.policy = c.setiampolicyrequest.Policy
+         }
+     }
+    
+    if !found {
+        return nil, fmt.Errorf("resource does not exist")
+    }
+
+     return c.setiampolicyrequest.Policy, nil
+}
+
+
+
+
+
+
+
+type FoldersService struct {
+	s *MockService
+	f []*Folder
+}
+
+func NewFoldersService(s *MockService) *FoldersService {
+	rs := &FoldersService{s: s}
+	return rs
+}
+
+func (r *FoldersService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *FoldersGetIamPolicyCall {
+	c := &FoldersGetIamPolicyCall{s: r.s}
+	c.resource = resource
+	c.getiampolicyrequest = getiampolicyrequest
+	return c
+}
+
+func (r *FoldersService) SetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *FoldersSetIamPolicyCall {
+	c := &FoldersSetIamPolicyCall{s: r.s}
+	c.resource = resource
+	c.setiampolicyrequest = setiampolicyrequest
+	return c
+}
+
+type FoldersGetIamPolicyCall struct {
+	s                   *MockService
+	resource            string
+	getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
+}
+
+func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
+	var policy *cloudresourcemanager.Policy
+	for _, folder := range c.s.Folders.f {
+		if folder.folderID == c.resource {
+			policy = folder.policy
+		}
+	}
+	if policy == nil {
+		policy = &cloudresourcemanager.Policy{}
+	}
+    return policy, nil
+}
+
+
+
+type FoldersSetIamPolicyCall struct {
+	s        *MockService
+	resource string
+	setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
+}
+
+
+func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
+    var found bool
+
+    for _, folder := range c.s.Folders.f {
+        if folder.folderID == c.resource {
+            found = true
+            folder.policy = c.setiampolicyrequest.Policy
          }
      }
     
@@ -175,6 +253,38 @@ func NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project 
             policy: policy,
     }
 }
+
+
+
+
+func GenerateFolders(count int) (folders []*Folder){
+    for i := 0; i < count; i ++ {
+        folders = append(folders, GenerateFolder())
+    }
+    return folders
+}
+
+func GenerateFolder() *Folder{
+   	rand.Seed(time.Now().UnixNano())
+    
+    return NewFolder(StringGenerator(0), GeneratePolicy(nil))
+}
+    
+    
+func NewFolder(folderID string, policy *cloudresourcemanager.Policy) *Folder {
+    if policy == nil {
+        policy = &cloudresourcemanager.Policy{}
+    }
+    return &Folder{
+            folderID: folderID,
+            policy: policy,
+    }
+}
+
+
+
+
+
 
 func GenerateBindings(number int) (bindings []*cloudresourcemanager.Binding){
     for i := 0; i < number; i++ {

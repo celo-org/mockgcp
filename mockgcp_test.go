@@ -8,7 +8,7 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
 
-func TestGetIamPolicy_Do(t *testing.T) {
+func TestProject_GetIamPolicy_Do(t *testing.T) {
 	t.Run("should return blank policy if project doesn't exist", func(t *testing.T) {
 		projectID := "projects/TestProject"
 		service, _ := NewService(context.TODO())
@@ -41,7 +41,7 @@ func TestGetIamPolicy_Do(t *testing.T) {
 		}
 	})
 }
-func TestSetIamPolicy_Do(t *testing.T) {
+func TestProject_SetIamPolicy_Do(t *testing.T) {
 	t.Run("should create policy", func(t *testing.T) {
 		projectID := "projects/TestProject"
 		service, _ := NewService(context.TODO())
@@ -76,6 +76,41 @@ func TestSetIamPolicy_Do(t *testing.T) {
 		}
 
 	})
-
-
 }
+
+func TestFolder_GetIamPolicy_Do(t *testing.T) {
+	t.Run("should return blank policy if folder doesn't exist", func(t *testing.T) {
+		folderID := "folders/TestFolder"
+		service, _ := NewService(context.TODO())
+		request := new(cloudresourcemanager.GetIamPolicyRequest)
+
+		want := &cloudresourcemanager.Policy{}
+		got, _ := service.Folders.GetIamPolicy(folderID, request).Do()
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+
+	})
+	t.Run("should get policy if it exists for folder", func(t *testing.T) {
+		folderID := "folders/TestFolder"
+		service, _ := NewService(context.TODO())
+
+		request := new(cloudresourcemanager.GetIamPolicyRequest)
+        policy := GeneratePolicy(nil)
+        folder := NewFolder(folderID, policy)
+        folders := append(GenerateFolders(5), folder)
+
+        service.Folders.f = append(service.Folders.f, folders...)
+        
+        want := policy
+		got, _ := service.Folders.GetIamPolicy(folderID, request).Do()
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+}
+
+
+
