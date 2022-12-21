@@ -27,7 +27,7 @@ type GCPClient struct {
 }
 
 func NewClient() *GCPClient {
-	Service, _ := NewService(context.TODO())
+	service, _ := NewService(context.TODO())
 	return &GCPClient{Service: service}
 }
 
