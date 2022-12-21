@@ -13,6 +13,10 @@ import (
 	htransport "google.golang.org/api/transport/http"
 )
 
+const (
+    ResourceNotFoundError = "resource not found"
+)
+
 type SetPolicyCallItf interface {
 	Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error)
 }
@@ -117,7 +121,7 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 		}
 	}
 	if policy == nil {
-        return nil, fmt.Errorf("resource %v does not exist", c.resource)
+        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.resource)
 	}
 	return policy, nil
 }
@@ -139,7 +143,7 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 	}
 
 	if !found {
-        return nil, fmt.Errorf("resource %v does not exist", c.resource)
+        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.resource)
 	}
 
 	return c.setiampolicyrequest.Policy, nil
@@ -184,7 +188,8 @@ func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 	}
 
 	if policy == nil {
-        return nil, fmt.Errorf("resource %v does not exist", c.resource)
+        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.resource)
+
 	}
 
 	return policy, nil
@@ -207,7 +212,7 @@ func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 	}
 
 	if !found {
-		return nil, fmt.Errorf("resource does not exist")
+        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.resource)
 	}
 
 	return c.setiampolicyrequest.Policy, nil
