@@ -22,20 +22,20 @@ type SetPolicyCallItf interface {
 }
 
 type GCPClient struct {
-	service *MockService
+	Service *MockService
 }
 
 func NewClient() *GCPClient {
-	service, _ := NewService(context.TODO())
-	return &GCPClient{service: service}
+	Service, _ := NewService(context.TODO())
+	return &GCPClient{Service: service}
 }
 
 func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
-	return client.service.Projects.SetIamPolicy(resource, setiampolicyrequest)
+	return client.Service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
 
 func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
-	return client.service.Folders.SetIamPolicy(resource, setiampolicyrequest)
+	return client.Service.Folders.SetIamPolicy(resource, setiampolicyrequest)
 }
 
 type MockService struct {
