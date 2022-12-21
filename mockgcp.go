@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
-    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -128,25 +127,18 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 }
 
 type ProjectsSetIamPolicyCall struct {
-	Service                 *MockService
+	Service             *MockService
 	Resource            string
 	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
 
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
-    log.Printf("test 2")
 
-    log.Printf("c.Service.Projects is %+v", c.Service.Projects)
 	for _, project := range c.Service.Projects.ProjectList {
-            log.Printf("project.ProjectID is %v and resource is %v", project.ProjectID, c.Resource)
 		if project.ProjectID == c.Resource {
-            log.Printf("test 3")
-
 			found = true
-
 			project.Policy = c.Setiampolicyrequest.Policy
-            log.Printf("PROJECT POLICY IS %v", project.Policy)
 		}
 	}
 

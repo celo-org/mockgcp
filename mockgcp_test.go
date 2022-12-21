@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 	"testing"
-    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
@@ -55,7 +54,6 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 
 		want := policy
 
-        log.Printf("MY WANT POLICY IS %+v", *want)
 		got := service.Projects.ProjectList[0].Policy
 
 		if !reflect.DeepEqual(got, want) {
