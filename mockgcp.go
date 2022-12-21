@@ -14,6 +14,21 @@ import (
 
 )
 
+
+type GCPClient struct {
+    service *MockService
+}
+
+func NewClient() *GCPClient{
+    service, _ := NewService(context.TODO())
+    return &GCPClient{service: service}
+}
+
+func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *ProjectsSetIamPolicyCall {
+    return client.service.Projects.SetIamPolicy(resource, setiampolicyrequest)
+}
+
+
 type MockService struct {
 	Projects *ProjectsService
 }
