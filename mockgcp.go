@@ -138,8 +138,13 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
     log.Printf("test 1")
 
 	for _, project := range c.Service.Projects.ProjectList {
+            log.Printf("test 2")
+            log.Printf("project.ProjectID is %v and resource is %v", project.ProjectID, c.Resource)
 		if project.ProjectID == c.Resource {
+            log.Printf("test 3")
+
 			found = true
+
 			project.Policy = c.Setiampolicyrequest.Policy
             log.Printf("PROJECT POLICY IS %v", project.Policy)
 		}
