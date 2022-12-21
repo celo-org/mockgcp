@@ -135,6 +135,7 @@ type ProjectsSetIamPolicyCall struct {
 
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
+    log.Printf("test 1")
 
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
