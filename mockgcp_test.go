@@ -59,10 +59,9 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
 		}
-
 	})
 	t.Run("should return err if project doesn't exist", func(t *testing.T) {
-		projectID := "projects/TestProject"
+		projectID := "TestProject"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
 		policy := GeneratePolicy(nil)
@@ -73,8 +72,23 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		if err == nil {
 			t.Errorf("expected an error but got none")
 		}
-
 	})
+
+	t.Run("should return err if project name doesn't match format", func(t *testing.T) {
+		projectID := "TestProject"
+		service, _ := NewService(context.TODO())
+		request := new(cloudresourcemanager.SetIamPolicyRequest)
+		policy := GeneratePolicy(nil)
+		request.Policy = policy
+
+		service.Projects.ProjectList = append(service.Projects.ProjectList, NewProject(projectID, nil))
+		_, err := service.Projects.SetIamPolicy(projectID, request).Do()
+
+		if err == nil {
+			t.Errorf("expected an error but got none %v", err )
+    	}
+	})
+
 }
 
 func TestFolder_GetIamPolicy_Do(t *testing.T) {
@@ -139,6 +153,21 @@ func TestFolder_SetIamPolicy_Do(t *testing.T) {
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
 		}
+	})
+
+	t.Run("should return err if folder name doesn't match format", func(t *testing.T) {
+		folderID := "TestFolder"
+		service, _ := NewService(context.TODO())
+		request := new(cloudresourcemanager.SetIamPolicyRequest)
+		policy := GeneratePolicy(nil)
+		request.Policy = policy
+
+		service.Folders.FolderList = append(service.Folders.FolderList, NewFolder(folderID, nil))
+		_, err := service.Folders.SetIamPolicy(folderID, request).Do()
+
+		if err == nil {
+			t.Errorf("expected an error but got none %v", err )
+    	}
 	})
 }
 
@@ -205,5 +234,21 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 			t.Errorf("got %v want %v", got, want)
 		}
     })
+	t.Run("should return err if organization name doesn't match format", func(t *testing.T) {
+		organizationID := "TestOrganization"
+		service, _ := NewService(context.TODO())
+		request := new(cloudresourcemanager.SetIamPolicyRequest)
+		policy := GeneratePolicy(nil)
+		request.Policy = policy
+
+		service.Organizations.OrganizationList = append(service.Organizations.OrganizationList, NewOrganization(organizationID, nil))
+		_, err := service.Organizations.SetIamPolicy(organizationID, request).Do()
+
+		if err == nil {
+			t.Errorf("expected an error but got none %v", err )
+    	}
+	})
+
+
 }
 

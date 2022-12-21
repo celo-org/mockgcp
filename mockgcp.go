@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+    "regexp"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -147,6 +148,11 @@ type OrganizationsSetIamPolicyCall struct {
 func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
+    match, _ := regexp.MatchString("organizations/.*", c.Resource) 
+    if !match {
+        return nil, fmt.Errorf("resource format invalid")
+    }
+
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
 			found = true
@@ -212,6 +218,11 @@ type ProjectsSetIamPolicyCall struct {
 
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
+
+    match, _ := regexp.MatchString("projects/.*", c.Resource) 
+    if !match {
+        return nil, fmt.Errorf("resource format invalid")
+    }
 
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
@@ -282,6 +293,10 @@ type FoldersSetIamPolicyCall struct {
 func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
+    match, _ := regexp.MatchString("folders/.*", c.Resource)
+    if !match {
+        return nil, fmt.Errorf("resource format invalid")
+    }
 	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
 			found = true
