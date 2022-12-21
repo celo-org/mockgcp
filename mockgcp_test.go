@@ -9,7 +9,7 @@ import (
 )
 
 func TestProject_GetIamPolicy_Do(t *testing.T) {
-	t.Run("should err if project doesn't exist", func(t *testing.T) {
+	t.Run("should return err if project doesn't exist", func(t *testing.T) {
 		projectID := "projects/TestProject"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
@@ -108,6 +108,8 @@ func TestFolder_GetIamPolicy_Do(t *testing.T) {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
+}
+func TestFolder_SetIamPolicy_Do(t *testing.T) {
 	t.Run("should return err if folder doesn't exist", func(t *testing.T) {
 		folderID := "folders/TestFolder"
 		service, _ := NewService(context.TODO())
@@ -120,7 +122,88 @@ func TestFolder_GetIamPolicy_Do(t *testing.T) {
 		if err == nil {
 			t.Errorf("expected an error but got none %v", err)
 		}
-
 	})
 
+	t.Run("should create folder", func(t *testing.T) {
+		folderID := "folders/TestFolder"
+		service, _ := NewService(context.TODO())
+		request := new(cloudresourcemanager.SetIamPolicyRequest)
+		policy := GeneratePolicy(nil)
+		request.Policy = policy
+		service.Folders.FolderList = append(service.Folders.FolderList, NewFolder(folderID, nil))
+		service.Folders.SetIamPolicy(folderID, request).Do()
+
+		want := policy
+		got := service.Folders.FolderList[0].Policy
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
+
+func TestOrganization_GetIamPolicy_Do(t *testing.T) {
+	t.Run("should err if organization  doesn't exist", func(t *testing.T) {
+		organizationID := "organizations/TestOrganization"
+		service, _ := NewService(context.TODO())
+		request := new(cloudresourcemanager.GetIamPolicyRequest)
+
+		_, err:= service.Organizations.GetIamPolicy(organizationID, request).Do()
+
+		if err == nil {
+			t.Errorf("expected an error but got none")
+		}
+	})
+
+	t.Run("should get policy if it exists for organization", func(t *testing.T) {
+		organizationID := "organizations/TestOrganization"
+		service, _ := NewService(context.TODO())
+
+		request := new(cloudresourcemanager.GetIamPolicyRequest)
+		policy := GeneratePolicy(nil)
+		organization := NewOrganization(organizationID, policy)
+		organizations := append(GenerateOrganizations(5), organization)
+
+		service.Organizations.OrganizationList = append(service.Organizations.OrganizationList, organizations...)
+
+		want := policy
+		got, _ := service.Organizations.GetIamPolicy(organizationID, request).Do()
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+}
+func TestOrganization_SetIamPolicy_Do(t *testing.T) {
+	t.Run("should return err if organization doesn't exist", func(t *testing.T) {
+		organizationID := "organizations/OrganizationFolder"
+		service, _ := NewService(context.TODO())
+		request := new(cloudresourcemanager.SetIamPolicyRequest)
+		policy := GeneratePolicy(nil)
+		request.Policy = policy
+
+		_, err := service.Organizations.SetIamPolicy(organizationID, request).Do()
+
+		if err == nil {
+			t.Errorf("expected an error but got none %v", err)
+		}
+	})
+
+	t.Run("should create organization", func(t *testing.T) {
+		organizationID := "organizations/TestOrganization"
+		service, _ := NewService(context.TODO())
+		request := new(cloudresourcemanager.SetIamPolicyRequest)
+		policy := GeneratePolicy(nil)
+		request.Policy = policy
+		service.Organizations.OrganizationList = append(service.Organizations.OrganizationList, NewOrganization(organizationID, nil))
+		service.Organizations.SetIamPolicy(organizationID, request).Do()
+
+		want := policy
+		got := service.Organizations.OrganizationList[0].Policy
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+    })
+}
+
