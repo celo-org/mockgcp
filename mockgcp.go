@@ -18,7 +18,7 @@ const (
     ResourceNotFoundError = "resource not found"
 )
 
-type SetPolicyCallItf interface {
+type PolicyCallItf interface {
 	Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error)
 }
 
@@ -31,16 +31,27 @@ func NewClient() *GCPClient {
 	return &GCPClient{Service: service}
 }
 
-func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
+func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
+func (client *GCPClient) ProjectGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
+	return client.Service.Projects.GetIamPolicy(resource, getiampolicyrequest)
+}
 
-func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
+func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Folders.SetIamPolicy(resource, setiampolicyrequest)
 }
 
-func (client *GCPClient) OrganizationSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) SetPolicyCallItf {
+func (client *GCPClient) FolderGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
+	return client.Service.Folders.GetIamPolicy(resource, getiampolicyrequest)
+}
+
+func (client *GCPClient) OrganizationSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Organizations.SetIamPolicy(resource, setiampolicyrequest)
+}
+
+func (client *GCPClient) OrganizationGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
+	return client.Service.Organizations.GetIamPolicy(resource, getiampolicyrequest)
 }
 
 type MockService struct {
