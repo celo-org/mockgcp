@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"reflect"
+	"regexp"
 	"time"
-    "regexp"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -15,7 +16,7 @@ import (
 )
 
 const (
-    ResourceNotFoundError = "resource not found"
+	ResourceNotFoundError = "resource not found"
 )
 
 type PolicyCallItf interface {
@@ -55,9 +56,9 @@ func (client *GCPClient) OrganizationGetIamPolicy(resource string, getiampolicyr
 }
 
 type MockService struct {
-	Projects *ProjectsService
-	Folders  *FoldersService
-    Organizations *OrganizationsService
+	Projects      *ProjectsService
+	Folders       *FoldersService
+	Organizations *OrganizationsService
 }
 
 func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService, error) {
@@ -77,22 +78,13 @@ func New(client *http.Client) (*MockService, error) {
 	s := &MockService{}
 	s.Folders = NewFoldersService(s)
 	s.Organizations = NewOrganizationsService(s)
-	/*
-		s.Liens = NewLiensService(s)
-		s.Operations = NewOperationsService(s)
-	*/
 	s.Projects = NewProjectsService(s)
-	/*
-		s.TagBindings = NewTagBindingsService(s)
-		s.TagKeys = NewTagKeysService(s)
-		s.TagValues = NewTagValuesService(s)
-	*/
 	return s, nil
 }
 
 type Organization struct {
 	OrganizationID string
-	Policy    *cloudresourcemanager.Policy
+	Policy         *cloudresourcemanager.Policy
 }
 
 type Project struct {
@@ -106,17 +98,48 @@ type Folder struct {
 }
 
 type OrganizationsService struct {
-	Service *MockService
+	Service          *MockService
 	OrganizationList []*Organization
-}
-
-func (organizations *OrganizationsService) AddOrganization(organization *Organization) {
-    organizations.OrganizationList = append(organizations.OrganizationList, organization)
 }
 
 func NewOrganizationsService(s *MockService) *OrganizationsService {
 	rs := &OrganizationsService{Service: s}
 	return rs
+}
+
+func (r *OrganizationsService) NewOrganization(orgID string, policy *cloudresourcemanager.Policy) *Organization {
+	if policy == nil {
+		policy = &cloudresourcemanager.Policy{}
+	}
+	organization := &Organization{
+		OrganizationID: orgID,
+		Policy:         policy,
+	}
+
+	r.OrganizationList = append(r.OrganizationList, organization)
+
+	return organization
+}
+
+func (r *OrganizationsService) GenerateOrganizations(count int, baseName string) (organizations []*Organization) {
+	rand.Seed(time.Now().UnixNano())
+	startNumber := rand.Intn(9999)
+
+	for i := 0; i < count; i++ {
+		orgID := fmt.Sprintf("%v%v-%d", "organizations/", baseName, startNumber+i)
+		policy := GeneratePolicy(nil)
+		organizations = append(organizations, r.NewOrganization(orgID, policy))
+	}
+	return organizations
+}
+
+func (r *OrganizationsService) FindPolicy(policy *cloudresourcemanager.Policy) *Organization {
+	for _, organization := range r.OrganizationList {
+		if reflect.DeepEqual(policy, organization.Policy) {
+			return organization
+		}
+	}
+	return nil
 }
 
 func (r *OrganizationsService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *OrganizationsGetIamPolicyCall {
@@ -133,10 +156,8 @@ func (r *OrganizationsService) SetIamPolicy(resource string, setiampolicyrequest
 	return c
 }
 
-
-
 type OrganizationsGetIamPolicyCall struct {
-	Service                   *MockService
+	Service             *MockService
 	Resource            string
 	Getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
 }
@@ -149,7 +170,7 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 		}
 	}
 	if policy == nil {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 	}
 	return policy, nil
 }
@@ -163,10 +184,10 @@ type OrganizationsSetIamPolicyCall struct {
 func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
-    match, _ := regexp.MatchString("organizations/.*", c.Resource) 
-    if !match {
-        return nil, fmt.Errorf("resource format invalid")
-    }
+	match, _ := regexp.MatchString("organizations/.*", c.Resource)
+	if !match {
+		return nil, fmt.Errorf("resource format invalid")
+	}
 
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
@@ -176,24 +197,54 @@ func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 	}
 
 	if !found {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 	}
 
 	return c.Setiampolicyrequest.Policy, nil
 }
 
 type ProjectsService struct {
-	Service *MockService
+	Service     *MockService
 	ProjectList []*Project
-}
-
-func (projects *ProjectsService) AddProject(project *Project) {
-    projects.ProjectList = append(projects.ProjectList, project)
 }
 
 func NewProjectsService(s *MockService) *ProjectsService {
 	rs := &ProjectsService{Service: s}
 	return rs
+}
+
+func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project {
+	if policy == nil {
+		policy = &cloudresourcemanager.Policy{}
+	}
+	project := &Project{
+		ProjectID: projectID,
+		Policy:    policy,
+	}
+	r.ProjectList = append(r.ProjectList, project)
+
+	return project
+}
+
+func (r *ProjectsService) GenerateProjects(count int, baseName string) (projects []*Project) {
+	rand.Seed(time.Now().UnixNano())
+	startNumber := rand.Intn(9999)
+
+	for i := 0; i < count; i++ {
+		projectID := fmt.Sprintf("%v%v-%d", "projects/", baseName, startNumber+i)
+		policy := GeneratePolicy(nil)
+		projects = append(projects, r.NewProject(projectID, policy))
+	}
+	return projects
+}
+
+func (r *ProjectsService) FindPolicy(policy *cloudresourcemanager.Policy) *Project {
+	for _, project := range r.ProjectList {
+		if reflect.DeepEqual(policy, project.Policy) {
+			return project
+		}
+	}
+	return nil
 }
 
 func (r *ProjectsService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *ProjectsGetIamPolicyCall {
@@ -211,7 +262,7 @@ func (r *ProjectsService) SetIamPolicy(resource string, setiampolicyrequest *clo
 }
 
 type ProjectsGetIamPolicyCall struct {
-	Service                   *MockService
+	Service             *MockService
 	Resource            string
 	Getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
 }
@@ -224,7 +275,7 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 		}
 	}
 	if policy == nil {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 	}
 	return policy, nil
 }
@@ -238,10 +289,10 @@ type ProjectsSetIamPolicyCall struct {
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
-    match, _ := regexp.MatchString("projects/.*", c.Resource) 
-    if !match {
-        return nil, fmt.Errorf("resource format invalid")
-    }
+	match, _ := regexp.MatchString("projects/.*", c.Resource)
+	if !match {
+		return nil, fmt.Errorf("resource format invalid")
+	}
 
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
@@ -251,24 +302,54 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 	}
 
 	if !found {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 	}
 
 	return c.Setiampolicyrequest.Policy, nil
 }
 
 type FoldersService struct {
-	Service *MockService
+	Service    *MockService
 	FolderList []*Folder
-}
-
-func (folders *FoldersService) AddFolder(folder *Folder) {
-    folders.FolderList = append(folders.FolderList, folder)
 }
 
 func NewFoldersService(s *MockService) *FoldersService {
 	rs := &FoldersService{Service: s}
 	return rs
+}
+
+func (r *FoldersService) NewFolder(folderID string, policy *cloudresourcemanager.Policy) *Folder {
+	if policy == nil {
+		policy = &cloudresourcemanager.Policy{}
+	}
+	folder := &Folder{
+		FolderID: folderID,
+		Policy:   policy,
+	}
+	r.FolderList = append(r.FolderList, folder)
+
+	return folder
+}
+
+func (r *FoldersService) GenerateFolders(count int, baseName string) (folders []*Folder) {
+	rand.Seed(time.Now().UnixNano())
+	startNumber := rand.Intn(9999)
+
+	for i := 0; i < count; i++ {
+		folderID := fmt.Sprintf("%v%v-%d", "folders/", baseName, startNumber+i)
+		policy := GeneratePolicy(nil)
+		folders = append(folders, r.NewFolder(folderID, policy))
+	}
+	return folders
+}
+
+func (r *FoldersService) FindPolicy(policy *cloudresourcemanager.Policy) *Folder {
+	for _, folder := range r.FolderList {
+		if reflect.DeepEqual(policy, folder.Policy) {
+			return folder
+		}
+	}
+	return nil
 }
 
 func (r *FoldersService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *FoldersGetIamPolicyCall {
@@ -286,7 +367,7 @@ func (r *FoldersService) SetIamPolicy(resource string, setiampolicyrequest *clou
 }
 
 type FoldersGetIamPolicyCall struct {
-	Service                   *MockService
+	Service             *MockService
 	Resource            string
 	Getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
 }
@@ -300,7 +381,7 @@ func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 	}
 
 	if policy == nil {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 
 	}
 
@@ -308,7 +389,7 @@ func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 }
 
 type FoldersSetIamPolicyCall struct {
-	Service                   *MockService
+	Service             *MockService
 	Resource            string
 	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
@@ -316,10 +397,10 @@ type FoldersSetIamPolicyCall struct {
 func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var found bool
 
-    match, _ := regexp.MatchString("folders/.*", c.Resource)
-    if !match {
-        return nil, fmt.Errorf("resource format invalid")
-    }
+	match, _ := regexp.MatchString("folders/.*", c.Resource)
+	if !match {
+		return nil, fmt.Errorf("resource format invalid")
+	}
 	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
 			found = true
@@ -328,41 +409,17 @@ func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 	}
 
 	if !found {
-        return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 	}
 
 	return c.Setiampolicyrequest.Policy, nil
 }
 
 // These functions below don't emulate anything in the GCP API, they're just for making test data easily
-
+/*
 func StringGenerator(seed int) string {
 	rand.Seed(time.Now().UnixNano() + int64(seed))
 	return fmt.Sprintf("randomString-%d%d", rand.Intn(99999), rand.Intn(99999))
-}
-
-
-func GenerateOrganizations(count int) (organizations []*Organization) {
-	for i := 0; i < count; i++ {
-		organizations = append(organizations, GenerateOrganization())
-	}
-	return organizations
-}
-
-func GenerateOrganization() *Organization {
-	rand.Seed(time.Now().UnixNano())
-
-	return NewOrganization(StringGenerator(0), GeneratePolicy(nil))
-}
-
-func NewOrganization(organizationID string, policy *cloudresourcemanager.Policy) *Organization {
-	if policy == nil {
-		policy = &cloudresourcemanager.Policy{}
-	}
-	return &Organization{
-		OrganizationID: organizationID,
-		Policy:   policy,
-	}
 }
 
 func GenerateProjects(count int) (projects []*Project) {
@@ -375,7 +432,7 @@ func GenerateProjects(count int) (projects []*Project) {
 func GenerateProject() *Project {
 	rand.Seed(time.Now().UnixNano())
 
-	return NewProject(StringGenerator(0), GeneratePolicy(nil))
+	return NewProject(StringGenerator(), GeneratePolicy(nil))
 }
 
 func NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project {
@@ -387,7 +444,6 @@ func NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project 
 		Policy:    policy,
 	}
 }
-
 func GenerateFolders(count int) (folders []*Folder) {
 	for i := 0; i < count; i++ {
 		folders = append(folders, GenerateFolder())
@@ -398,7 +454,7 @@ func GenerateFolders(count int) (folders []*Folder) {
 func GenerateFolder() *Folder {
 	rand.Seed(time.Now().UnixNano())
 
-	return NewFolder(StringGenerator(0), GeneratePolicy(nil))
+	return NewFolder(StringGenerator(), GeneratePolicy(nil))
 }
 
 func NewFolder(folderID string, policy *cloudresourcemanager.Policy) *Folder {
@@ -410,30 +466,10 @@ func NewFolder(folderID string, policy *cloudresourcemanager.Policy) *Folder {
 		Policy:   policy,
 	}
 }
-
-func GenerateBindings(number int) (bindings []*cloudresourcemanager.Binding) {
-	for i := 0; i < number; i++ {
-		bindings = append(bindings, GenerateBinding(""))
-	}
-	return bindings
-}
-
-func GenerateBinding(role string, members ...string) *cloudresourcemanager.Binding {
-	rand.Seed(time.Now().UnixNano())
-
-	if role == "" {
-		role = StringGenerator(0)
-	}
-
-	if members == nil {
-		for i := 0; i < rand.Intn(10); i++ {
-			members = append(members, StringGenerator(len(members)+1))
-		}
-	}
-
-	return &cloudresourcemanager.Binding{
-		Role:    role,
-		Members: members,
+*/
+func NewPolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
+	return &cloudresourcemanager.Policy{
+		Bindings: bindings,
 	}
 }
 
@@ -441,13 +477,11 @@ func GeneratePolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemana
 	rand.Seed(time.Now().UnixNano())
 	if bindings == nil {
 		for i := 0; i < rand.Intn(10); i++ {
-			bindings = append(bindings, GenerateBinding("", ""))
+			bindings = append(bindings, GenerateBinding())
 		}
 	}
 
-	return &cloudresourcemanager.Policy{
-		Bindings: bindings,
-	}
+	return NewPolicy(bindings)
 }
 
 func NewBinding(role string, members ...string) *cloudresourcemanager.Binding {
@@ -457,8 +491,37 @@ func NewBinding(role string, members ...string) *cloudresourcemanager.Binding {
 	}
 }
 
-func NewPolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
-	return &cloudresourcemanager.Policy{
-		Bindings: bindings,
+func GenerateBinding() *cloudresourcemanager.Binding {
+	rand.Seed(time.Now().UnixNano())
+
+	role := GenerateRole(StringGenerator())
+	var members []string
+
+	for i := 0; i < rand.Intn(10); i++ {
+		members = append(members, GenerateMember(StringGenerator()))
 	}
+
+	return NewBinding(role, members...)
+}
+
+func GenerateBindings(number int) (bindings []*cloudresourcemanager.Binding) {
+	for i := 0; i < number; i++ {
+		bindings = append(bindings, GenerateBinding())
+	}
+	return bindings
+}
+
+func GenerateMember(principal string) string {
+	rand.Seed(time.Now().UnixNano() + int64(len(principal)))
+	return fmt.Sprintf("%v-%d-%d-%v", principal, rand.Intn(99999), rand.Intn(99999), "@testdomain.co")
+}
+
+func GenerateRole(role string) string {
+	rand.Seed(time.Now().UnixNano() + int64(len(role)))
+	return fmt.Sprintf("%v-%d-%d", role, rand.Intn(99999), rand.Intn(99999))
+}
+
+func StringGenerator() string {
+	rand.Seed(time.Now().UnixNano())
+	return fmt.Sprintf("randomString-%d%d", rand.Intn(99999), rand.Intn(99999))
 }

@@ -8,13 +8,55 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
 
+func TestProjectsService_FindPolicy(t *testing.T) {
+	projectID := "projects/TestProject"
+	service, _ := NewService(context.TODO())
+	policy := GeneratePolicy(nil)
+	service.Projects.NewProject(projectID, policy)
+
+	want := policy
+	got := service.Projects.FindPolicy(policy).Policy
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestFoldersService_FindPolicy(t *testing.T) {
+	folderID := "folders/TestFolder"
+	service, _ := NewService(context.TODO())
+	policy := GeneratePolicy(nil)
+	service.Folders.NewFolder(folderID, policy)
+
+	want := policy
+	got := service.Folders.FindPolicy(policy).Policy
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestOrganizationsService_FindPolicy(t *testing.T) {
+	organizationID := "organizations/TestOrganization"
+	service, _ := NewService(context.TODO())
+	policy := GeneratePolicy(nil)
+	service.Organizations.NewOrganization(organizationID, policy)
+
+	want := policy
+	got := service.Organizations.FindPolicy(policy).Policy
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
 func TestProject_GetIamPolicy_Do(t *testing.T) {
 	t.Run("should return err if project doesn't exist", func(t *testing.T) {
 		projectID := "projects/TestProject"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
 
-		_, err:= service.Projects.GetIamPolicy(projectID, request).Do()
+		_, err := service.Projects.GetIamPolicy(projectID, request).Do()
 
 		if err == nil {
 			t.Errorf("expected an error but got none")
@@ -24,16 +66,15 @@ func TestProject_GetIamPolicy_Do(t *testing.T) {
 		projectID := "projects/TestProject"
 		service, _ := NewService(context.TODO())
 
-		request := new(cloudresourcemanager.GetIamPolicyRequest)
 		policy := GeneratePolicy(nil)
-		project := NewProject(projectID, policy)
-		projects := append(GenerateProjects(5), project)
 
-		service.Projects.ProjectList = append(service.Projects.ProjectList, projects...)
+		service.Projects.GenerateProjects(5, "")
+		service.Projects.NewProject(projectID, policy)
+
+		request := new(cloudresourcemanager.GetIamPolicyRequest)
 
 		want := policy
 		got, _ := service.Projects.GetIamPolicy(projectID, request).Do()
-
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -44,17 +85,16 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 	t.Run("should create policy", func(t *testing.T) {
 		projectID := "projects/TestProject"
 		service, _ := NewService(context.TODO())
-		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
-		request.Policy = policy
+		service.Projects.NewProject(projectID, nil)
 
-		service.Projects.ProjectList = append(service.Projects.ProjectList, NewProject(projectID, nil))
+		policy := GeneratePolicy(nil)
+		request := new(cloudresourcemanager.SetIamPolicyRequest)
+		request.Policy = policy
 
 		service.Projects.SetIamPolicy(projectID, request).Do()
 
 		want := policy
-
-		got := service.Projects.ProjectList[0].Policy
+		got := service.Projects.FindPolicy(policy).Policy
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -81,14 +121,13 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		policy := GeneratePolicy(nil)
 		request.Policy = policy
 
-		service.Projects.ProjectList = append(service.Projects.ProjectList, NewProject(projectID, nil))
+		service.Projects.NewProject(projectID, nil)
 		_, err := service.Projects.SetIamPolicy(projectID, request).Do()
 
 		if err == nil {
-			t.Errorf("expected an error but got none %v", err )
-    	}
+			t.Errorf("expected an error but got none %v", err)
+		}
 	})
-
 }
 
 func TestFolder_GetIamPolicy_Do(t *testing.T) {
@@ -97,7 +136,7 @@ func TestFolder_GetIamPolicy_Do(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
 
-		_, err:= service.Folders.GetIamPolicy(folderID, request).Do()
+		_, err := service.Folders.GetIamPolicy(folderID, request).Do()
 
 		if err == nil {
 			t.Errorf("expected an error but got none")
@@ -110,10 +149,9 @@ func TestFolder_GetIamPolicy_Do(t *testing.T) {
 
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
 		policy := GeneratePolicy(nil)
-		folder := NewFolder(folderID, policy)
-		folders := append(GenerateFolders(5), folder)
 
-		service.Folders.FolderList = append(service.Folders.FolderList, folders...)
+		service.Folders.NewFolder(folderID, policy)
+		service.Folders.GenerateFolders(5, "")
 
 		want := policy
 		got, _ := service.Folders.GetIamPolicy(folderID, request).Do()
@@ -144,11 +182,12 @@ func TestFolder_SetIamPolicy_Do(t *testing.T) {
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
 		policy := GeneratePolicy(nil)
 		request.Policy = policy
-		service.Folders.FolderList = append(service.Folders.FolderList, NewFolder(folderID, nil))
+
+		service.Folders.NewFolder(folderID, nil)
 		service.Folders.SetIamPolicy(folderID, request).Do()
 
 		want := policy
-		got := service.Folders.FolderList[0].Policy
+        got := service.Folders.FindPolicy(policy).Policy
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -162,12 +201,12 @@ func TestFolder_SetIamPolicy_Do(t *testing.T) {
 		policy := GeneratePolicy(nil)
 		request.Policy = policy
 
-		service.Folders.FolderList = append(service.Folders.FolderList, NewFolder(folderID, nil))
+		service.Folders.NewFolder(folderID, nil)
 		_, err := service.Folders.SetIamPolicy(folderID, request).Do()
 
 		if err == nil {
-			t.Errorf("expected an error but got none %v", err )
-    	}
+			t.Errorf("expected an error but got none %v", err)
+		}
 	})
 }
 
@@ -177,7 +216,7 @@ func TestOrganization_GetIamPolicy_Do(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
 
-		_, err:= service.Organizations.GetIamPolicy(organizationID, request).Do()
+		_, err := service.Organizations.GetIamPolicy(organizationID, request).Do()
 
 		if err == nil {
 			t.Errorf("expected an error but got none")
@@ -190,10 +229,8 @@ func TestOrganization_GetIamPolicy_Do(t *testing.T) {
 
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
 		policy := GeneratePolicy(nil)
-		organization := NewOrganization(organizationID, policy)
-		organizations := append(GenerateOrganizations(5), organization)
 
-		service.Organizations.OrganizationList = append(service.Organizations.OrganizationList, organizations...)
+		service.Organizations.NewOrganization(organizationID, policy)
 
 		want := policy
 		got, _ := service.Organizations.GetIamPolicy(organizationID, request).Do()
@@ -224,16 +261,17 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
 		policy := GeneratePolicy(nil)
 		request.Policy = policy
-		service.Organizations.OrganizationList = append(service.Organizations.OrganizationList, NewOrganization(organizationID, nil))
+
+		service.Organizations.NewOrganization(organizationID, policy)
 		service.Organizations.SetIamPolicy(organizationID, request).Do()
 
 		want := policy
-		got := service.Organizations.OrganizationList[0].Policy
+        got := service.Organizations.FindPolicy(policy).Policy
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
 		}
-    })
+	})
 	t.Run("should return err if organization name doesn't match format", func(t *testing.T) {
 		organizationID := "TestOrganization"
 		service, _ := NewService(context.TODO())
@@ -241,98 +279,117 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 		policy := GeneratePolicy(nil)
 		request.Policy = policy
 
-		service.Organizations.OrganizationList = append(service.Organizations.OrganizationList, NewOrganization(organizationID, nil))
+		service.Organizations.NewOrganization(organizationID, policy)
 		_, err := service.Organizations.SetIamPolicy(organizationID, request).Do()
 
 		if err == nil {
-			t.Errorf("expected an error but got none %v", err )
-    	}
+			t.Errorf("expected an error but got none %v", err)
+		}
 	})
 }
-func MockService_AddProject(t *testing.T) {
+func MockService_ProjectsList_NewProject(t *testing.T) {
 	t.Run("should add project to projectlist", func(t *testing.T) {
-        
 		service, _ := NewService(context.TODO())
-        project := GenerateProject()
-        service.Projects.AddProject(project)
+		project := service.Projects.NewProject("", nil)
 
-        want := project
-        got := service.Projects.ProjectList[0]
+		want := project
+		got := service.Projects.ProjectList[0]
 
-        if !reflect.DeepEqual(got, want) {
-            t.Errorf("got %v want %v", got, want)
-        }
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
 	})
 	t.Run("should have correct number of projects", func(t *testing.T) {
-    	service, _ := NewService(context.TODO())
-        project := GenerateProject()
-        GenerateProjects(10)
-        service.Projects.AddProject(project)
+        randomProjectCount := 10
+		service, _ := NewService(context.TODO())
+        service.Projects.NewProject("", nil)
+		service.Projects.GenerateProjects(randomProjectCount, "")
 
-        want := 11
-        got := len(service.Projects.ProjectList)
+		want := randomProjectCount + 1
+		got := len(service.Projects.ProjectList)
 
-        if got != want {
-            t.Errorf("got %v want %v", got, want)
-        }
-    })
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
 
-func MockService_AddFolder(t *testing.T) {
-	t.Run("should add folder to folderlist", func(t *testing.T) {
-        
+func MockService_ProjectsService_GenerateProjects(t *testing.T) {
+	t.Run("should add projects to projectlist", func(t *testing.T) {
+		countArg := 10
 		service, _ := NewService(context.TODO())
-        folder := GenerateFolder()
-        service.Folders.AddFolder(folder)
 
-        want := folder
-        got := service.Folders.FolderList[0]
+		service.Projects.GenerateProjects(countArg, "")
+		want := countArg
+		got := len(service.Projects.ProjectList)
 
-        if !reflect.DeepEqual(got, want) {
-            t.Errorf("got %v want %v", got, want)
-        }
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+}
+
+func MockService_NewFolder(t *testing.T) {
+	t.Run("should add folder to folderlist", func(t *testing.T) {
+		service, _ := NewService(context.TODO())
+		folder := service.Folders.NewFolder("", nil)
+
+		want := folder
+		got := service.Folders.FolderList[0]
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
 	})
 	t.Run("should have correct number of folders", func(t *testing.T) {
-    	service, _ := NewService(context.TODO())
-        folder := GenerateFolder()
-        GenerateFolders(10)
-        service.Folders.AddFolder(folder)
+		service, _ := NewService(context.TODO())
+		service.Folders.NewFolder("", nil)
 
-        want := 11
-        got := len(service.Folders.FolderList)
+		want := 1
+		got := len(service.Folders.FolderList)
 
-        if got != want {
-            t.Errorf("got %v want %v", got, want)
-        }
-    })
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
 
-func MockService_AddOrganization(t *testing.T) {
+func MockService_OrganizationsService_NewOrganization(t *testing.T) {
 	t.Run("should add organization to organizationlist", func(t *testing.T) {
-        
 		service, _ := NewService(context.TODO())
-        organization := GenerateOrganization()
-        service.Organizations.AddOrganization(organization)
 
-        want := organization
-        got := service.Organizations.OrganizationList[0]
+		want := service.Organizations.NewOrganization("", nil)
+		got := service.Organizations.OrganizationList[0]
 
-        if !reflect.DeepEqual(got, want) {
-            t.Errorf("got %v want %v", got, want)
-        }
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
 	})
 	t.Run("should have correct number of organizations", func(t *testing.T) {
-    	service, _ := NewService(context.TODO())
-        organization := GenerateOrganization()
-        GenerateOrganizations(10)
-        service.Organizations.AddOrganization(organization)
+		service, _ := NewService(context.TODO())
+		service.Organizations.NewOrganization("", nil)
+		service.Organizations.GenerateOrganizations(10, "")
 
-        want := 11
-        got := len(service.Organizations.OrganizationList)
+		want := 11
+		got := len(service.Organizations.OrganizationList)
 
-        if got != want {
-            t.Errorf("got %v want %v", got, want)
-        }
-    })
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
 
+func MockService_OrganizationsService_GenerateOrganizations(t *testing.T) {
+	t.Run("should add organizations to organizationlist", func(t *testing.T) {
+		countArg := 10
+		service, _ := NewService(context.TODO())
+
+		service.Organizations.GenerateOrganizations(countArg, "")
+		want := countArg
+		got := len(service.Organizations.OrganizationList)
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+}
