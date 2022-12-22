@@ -110,6 +110,10 @@ type OrganizationsService struct {
 	OrganizationList []*Organization
 }
 
+func (organizations *OrganizationsService) AddOrganization(organization *Organization) {
+    organizations.OrganizationList = append(organizations.OrganizationList, organization)
+}
+
 func NewOrganizationsService(s *MockService) *OrganizationsService {
 	rs := &OrganizationsService{Service: s}
 	return rs
@@ -183,6 +187,10 @@ type ProjectsService struct {
 	ProjectList []*Project
 }
 
+func (projects *ProjectsService) AddProject(project *Project) {
+    projects.ProjectList = append(projects.ProjectList, project)
+}
+
 func NewProjectsService(s *MockService) *ProjectsService {
 	rs := &ProjectsService{Service: s}
 	return rs
@@ -252,6 +260,10 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 type FoldersService struct {
 	Service *MockService
 	FolderList []*Folder
+}
+
+func (folders *FoldersService) AddFolder(folder *Folder) {
+    folders.FolderList = append(folders.FolderList, folder)
 }
 
 func NewFoldersService(s *MockService) *FoldersService {
@@ -352,10 +364,6 @@ func NewOrganization(organizationID string, policy *cloudresourcemanager.Policy)
 		Policy:   policy,
 	}
 }
-
-
-
-
 
 func GenerateProjects(count int) (projects []*Project) {
 	for i := 0; i < count; i++ {

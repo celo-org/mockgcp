@@ -248,7 +248,91 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 			t.Errorf("expected an error but got none %v", err )
     	}
 	})
+}
+func MockService_AddProject(t *testing.T) {
+	t.Run("should add project to projectlist", func(t *testing.T) {
+        
+		service, _ := NewService(context.TODO())
+        project := GenerateProject()
+        service.Projects.AddProject(project)
 
+        want := project
+        got := service.Projects.ProjectList[0]
 
+        if !reflect.DeepEqual(got, want) {
+            t.Errorf("got %v want %v", got, want)
+        }
+	})
+	t.Run("should have correct number of projects", func(t *testing.T) {
+    	service, _ := NewService(context.TODO())
+        project := GenerateProject()
+        GenerateProjects(10)
+        service.Projects.AddProject(project)
+
+        want := 11
+        got := len(service.Projects.ProjectList)
+
+        if got != want {
+            t.Errorf("got %v want %v", got, want)
+        }
+    })
+}
+
+func MockService_AddFolder(t *testing.T) {
+	t.Run("should add folder to folderlist", func(t *testing.T) {
+        
+		service, _ := NewService(context.TODO())
+        folder := GenerateFolder()
+        service.Folders.AddFolder(folder)
+
+        want := folder
+        got := service.Folders.FolderList[0]
+
+        if !reflect.DeepEqual(got, want) {
+            t.Errorf("got %v want %v", got, want)
+        }
+	})
+	t.Run("should have correct number of folders", func(t *testing.T) {
+    	service, _ := NewService(context.TODO())
+        folder := GenerateFolder()
+        GenerateFolders(10)
+        service.Folders.AddFolder(folder)
+
+        want := 11
+        got := len(service.Folders.FolderList)
+
+        if got != want {
+            t.Errorf("got %v want %v", got, want)
+        }
+    })
+}
+
+func MockService_AddOrganization(t *testing.T) {
+	t.Run("should add organization to organizationlist", func(t *testing.T) {
+        
+		service, _ := NewService(context.TODO())
+        organization := GenerateOrganization()
+        service.Organizations.AddOrganization(organization)
+
+        want := organization
+        got := service.Organizations.OrganizationList[0]
+
+        if !reflect.DeepEqual(got, want) {
+            t.Errorf("got %v want %v", got, want)
+        }
+	})
+	t.Run("should have correct number of organizations", func(t *testing.T) {
+    	service, _ := NewService(context.TODO())
+        organization := GenerateOrganization()
+        GenerateOrganizations(10)
+        service.Organizations.AddOrganization(organization)
+
+        want := 11
+        got := len(service.Organizations.OrganizationList)
+
+        if got != want {
+            t.Errorf("got %v want %v", got, want)
+        }
+    })
 }
 
