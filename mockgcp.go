@@ -32,6 +32,7 @@ func NewClient() *GCPClient {
 	return &GCPClient{Service: service}
 }
 
+// Wrapper methods for Google Clouds API
 func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
@@ -55,6 +56,8 @@ func (client *GCPClient) OrganizationGetIamPolicy(resource string, getiampolicyr
 	return client.Service.Organizations.GetIamPolicy(resource, getiampolicyrequest)
 }
 
+
+// A mockup of cloud resource manager's service
 type MockService struct {
 	Projects      *ProjectsService
 	Folders       *FoldersService
@@ -74,6 +77,7 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService,
 	return s, nil
 }
 
+// The client which NewService will call to create a new service.
 func New(client *http.Client) (*MockService, error) {
 	s := &MockService{}
 	s.Folders = NewFoldersService(s)
@@ -107,6 +111,8 @@ func NewOrganizationsService(s *MockService) *OrganizationsService {
 	return rs
 }
 
+// NewOrganization creates a new organization with the specified ID and policy on the Organizations Service
+// and returns a pointer to the created organization.  If policy isn't specified it will generate a blank one
 func (r *OrganizationsService) NewOrganization(orgID string, policy *cloudresourcemanager.Policy) *Organization {
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
@@ -121,6 +127,8 @@ func (r *OrganizationsService) NewOrganization(orgID string, policy *cloudresour
 	return organization
 }
 
+// GenerateOrganizations takes a count of Organizations to create, and a basename, and will generate random
+// data for the Organizations and add them to the Organizations Service
 func (r *OrganizationsService) GenerateOrganizations(count int, baseName string) (organizations []*Organization) {
 	rand.Seed(time.Now().UnixNano())
 	startNumber := rand.Intn(9999)
@@ -133,6 +141,8 @@ func (r *OrganizationsService) GenerateOrganizations(count int, baseName string)
 	return organizations
 }
 
+// FindPolicy will search the organizations service for a matching policy, and return
+// the organization that contains it
 func (r *OrganizationsService) FindPolicy(policy *cloudresourcemanager.Policy) *Organization {
 	for _, organization := range r.OrganizationList {
 		if reflect.DeepEqual(policy, organization.Policy) {
@@ -142,6 +152,8 @@ func (r *OrganizationsService) FindPolicy(policy *cloudresourcemanager.Policy) *
 	return nil
 }
 
+// GetIamPolicy will take a resource name (organization ID), and a getiampolicyrequest
+// and returns a GetIamPolicy Call, so we can run a Do() method
 func (r *OrganizationsService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *OrganizationsGetIamPolicyCall {
 	c := &OrganizationsGetIamPolicyCall{Service: r.Service}
 	c.Resource = resource
@@ -149,6 +161,8 @@ func (r *OrganizationsService) GetIamPolicy(resource string, getiampolicyrequest
 	return c
 }
 
+// SetIamPolicy will take a resource name (organization ID), and a setiampolicyrequest
+// and returns a SetIamPolicy Call, so we can run a Do() method
 func (r *OrganizationsService) SetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *OrganizationsSetIamPolicyCall {
 	c := &OrganizationsSetIamPolicyCall{Service: r.Service}
 	c.Resource = resource
