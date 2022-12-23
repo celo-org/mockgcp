@@ -8,6 +8,43 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
 
+
+func TestAddBindingsToPolicy(t *testing.T) {
+	binding := GenerateBinding()
+	policy := GeneratePolicy()
+
+	AddBindingsToPolicy(policy, binding)
+
+	want := binding
+	got := PolicyContains(policy, binding.Role)
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestPolicyContains(t *testing.T) {
+	binding := GenerateBinding()
+	policy := GeneratePolicy(binding)
+
+	want := binding
+	got := PolicyContains(policy, binding.Role)
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func TestBindingContains(t *testing.T) {
+	binding := GenerateBinding()
+
+	got := BindingContains(binding, binding.Members[0])
+
+    if got != true {
+		t.Errorf("expected BindingContains to return true, but it does not")
+	}
+}
+
 func TestProjectsService_FindPolicy(t *testing.T) {
 	projectID := "projects/TestProject"
 	service, _ := NewService(context.TODO())
@@ -187,7 +224,7 @@ func TestFolder_SetIamPolicy_Do(t *testing.T) {
 		service.Folders.SetIamPolicy(folderID, request).Do()
 
 		want := policy
-        got := service.Folders.FindPolicy(policy).Policy
+		got := service.Folders.FindPolicy(policy).Policy
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -266,7 +303,7 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 		service.Organizations.SetIamPolicy(organizationID, request).Do()
 
 		want := policy
-        got := service.Organizations.FindPolicy(policy).Policy
+		got := service.Organizations.FindPolicy(policy).Policy
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -300,9 +337,9 @@ func MockService_ProjectsList_NewProject(t *testing.T) {
 		}
 	})
 	t.Run("should have correct number of projects", func(t *testing.T) {
-        randomProjectCount := 10
+		randomProjectCount := 10
 		service, _ := NewService(context.TODO())
-        service.Projects.NewProject("", nil)
+		service.Projects.NewProject("", nil)
 		service.Projects.GenerateProjects(randomProjectCount, "")
 
 		want := randomProjectCount + 1
