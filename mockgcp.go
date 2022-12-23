@@ -450,7 +450,6 @@ func AddBindingsToPolicy(policy *cloudresourcemanager.Policy, bindings ...*cloud
 			policy.Bindings = append(policy.Bindings, binding)
 		}
 	}
-
 	return policy.Bindings
 }
 
