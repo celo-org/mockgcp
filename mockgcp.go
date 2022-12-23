@@ -454,9 +454,11 @@ func AddBindingsToPolicy(policy *cloudresourcemanager.Policy, bindings ...*cloud
 }
 
 func NewBinding(role string, members ...string) *cloudresourcemanager.Binding {
+    m := make([]string, len(members))
+	copy(m, members)
 	return &cloudresourcemanager.Binding{
 		Role:    role,
-		Members: members,
+		Members: m,
 	}
 }
 
