@@ -112,11 +112,11 @@ func NewOrganizationsService(s *MockService) *OrganizationsService {
 
 // NewOrganization creates a new organization with the specified ID and policy on the Organizations Service
 // and returns a pointer to the created organization.  If policy isn't specified it will generate a blank one
-func (r *OrganizationsService) NewOrganization(orgID string, policy *cloudresourcemanager.Policy) Organization {
+func (r *OrganizationsService) NewOrganization(orgID string, policy *cloudresourcemanager.Policy) *Organization {
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
 	}
-	organization := Organization{
+	organization := &Organization{
 		OrganizationID: orgID,
 		Policy:         policy,
 	}
@@ -514,19 +514,3 @@ func BindingContains(binding *cloudresourcemanager.Binding, member string) bool 
 	}
 	return false
 }
-
-
-func NewOrganization(orgID string, policy *cloudresourcemanager.Policy) *Organization {
-    if policy == nil {
-        policy = &cloudresourcemanager.Policy{}
-    }
-    organization := &Organization{
-        OrganizationID: orgID,
-        Policy:         policy,
-    }
-
-
-    return organization
-}
-
-

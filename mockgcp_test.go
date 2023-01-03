@@ -38,8 +38,6 @@ func TestPolicyContains(t *testing.T) {
 func TestBindingContains(t *testing.T) {
 	binding := GenerateBinding()
     
-//    t.Errorf("%+v is the binding", *binding)
-
 	got := BindingContains(binding, binding.Members[0])
 
     if got != true {
