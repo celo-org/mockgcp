@@ -8,7 +8,6 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
 
-
 func TestAddBindingsToPolicy(t *testing.T) {
 	binding := GenerateBinding()
 	policy := GeneratePolicy()
@@ -37,10 +36,10 @@ func TestPolicyContains(t *testing.T) {
 
 func TestBindingContains(t *testing.T) {
 	binding := GenerateBinding()
-    
+
 	got := BindingContains(binding, binding.Members[0])
 
-    if got != true {
+	if got != true {
 		t.Errorf("expected BindingContains to return true, but it does not")
 	}
 }

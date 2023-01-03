@@ -196,7 +196,7 @@ type OrganizationsSetIamPolicyCall struct {
 }
 
 func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-	var found bool
+	//var found bool
 
 	match, _ := regexp.MatchString("organizations/.*", c.Resource)
 	if !match {
@@ -205,16 +205,15 @@ func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
-			found = true
 			organization.Policy = c.Setiampolicyrequest.Policy
+			return organization.Policy, nil
 		}
 	}
 
-	if !found {
-		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
-	}
+	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 
-	return c.Setiampolicyrequest.Policy, nil
+	//		return c.Setiampolicyrequest.Policy, nil
+	//	   return organization.Policy
 }
 
 type ProjectsService struct {
@@ -437,11 +436,11 @@ func NewPolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemanager.P
 
 func GeneratePolicy(bindings ...*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
 	rand.Seed(time.Now().UnixNano())
-    if bindings != nil {
-        for i := 0; i < rand.Intn(10); i++ {
-            bindings = append(bindings, GenerateBinding())
-        }
-    }
+	if bindings != nil {
+		for i := 0; i < rand.Intn(10); i++ {
+			bindings = append(bindings, GenerateBinding())
+		}
+	}
 	return NewPolicy(bindings)
 }
 
@@ -455,7 +454,7 @@ func AddBindingsToPolicy(policy *cloudresourcemanager.Policy, bindings ...*cloud
 }
 
 func NewBinding(role string, members ...string) *cloudresourcemanager.Binding {
-    m := make([]string, len(members))
+	m := make([]string, len(members))
 	copy(m, members)
 	return &cloudresourcemanager.Binding{
 		Role:    role,
