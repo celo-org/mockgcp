@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"regexp"
 	"time"
-    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -180,9 +179,7 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 //	var policy cloudresourcemanager.Policy
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
-            log.Printf("org policy is %+v", *organization.Policy) 
 			policy := *organization.Policy
-            log.Printf("but returning policy %+v", *organization.Policy) 
             return &policy, nil
 		}
 	}
