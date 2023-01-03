@@ -176,18 +176,13 @@ type OrganizationsGetIamPolicyCall struct {
 }
 
 func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-//	var policy cloudresourcemanager.Policy
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
 			policy := *organization.Policy
             return &policy, nil
 		}
 	}
-
-//	if reflect.DeepEqual(policy, cloudresourcemanager.Policy{}) {
-		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
-//	}
-//	return &policy, nil
+	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 }
 
 type OrganizationsSetIamPolicyCall struct {
@@ -197,24 +192,17 @@ type OrganizationsSetIamPolicyCall struct {
 }
 
 func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-	//var found bool
-
 	match, _ := regexp.MatchString("organizations/.*", c.Resource)
 	if !match {
 		return nil, fmt.Errorf("resource format invalid")
 	}
-
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
 			organization.Policy = c.Setiampolicyrequest.Policy
 			return organization.Policy, nil
 		}
 	}
-
 	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
-
-	//		return c.Setiampolicyrequest.Policy, nil
-	//	   return organization.Policy
 }
 
 type ProjectsService struct {
@@ -282,16 +270,13 @@ type ProjectsGetIamPolicyCall struct {
 }
 
 func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-	var policy *cloudresourcemanager.Policy
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
-			policy = project.Policy
+			policy := *project.Policy
+            return &policy, nil
 		}
 	}
-	if policy == nil {
 		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
-	}
-	return policy, nil
 }
 
 type ProjectsSetIamPolicyCall struct {
@@ -300,26 +285,19 @@ type ProjectsSetIamPolicyCall struct {
 	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
 
-func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-	var found bool
 
+func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	match, _ := regexp.MatchString("projects/.*", c.Resource)
 	if !match {
 		return nil, fmt.Errorf("resource format invalid")
 	}
-
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
-			found = true
 			project.Policy = c.Setiampolicyrequest.Policy
+            return project.Policy, nil
 		}
 	}
-
-	if !found {
-		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
-	}
-
-	return c.Setiampolicyrequest.Policy, nil
+	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 }
 
 type FoldersService struct {
@@ -387,19 +365,13 @@ type FoldersGetIamPolicyCall struct {
 }
 
 func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-	var policy *cloudresourcemanager.Policy
 	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
-			policy = folder.Policy
+			policy := *folder.Policy
+            return &policy, nil
 		}
 	}
-
-	if policy == nil {
-		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
-
-	}
-
-	return policy, nil
+    return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 }
 
 type FoldersSetIamPolicyCall struct {
@@ -409,24 +381,18 @@ type FoldersSetIamPolicyCall struct {
 }
 
 func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-	var found bool
-
 	match, _ := regexp.MatchString("folders/.*", c.Resource)
 	if !match {
 		return nil, fmt.Errorf("resource format invalid")
 	}
 	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
-			found = true
 			folder.Policy = c.Setiampolicyrequest.Policy
+            return folder.Policy, nil
 		}
 	}
 
-	if !found {
 		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
-	}
-
-	return c.Setiampolicyrequest.Policy, nil
 }
 
 func NewPolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
