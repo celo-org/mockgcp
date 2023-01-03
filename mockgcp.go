@@ -178,6 +178,7 @@ type OrganizationsGetIamPolicyCall struct {
 func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	var policy cloudresourcemanager.Policy
 	for _, organization := range c.Service.Organizations.OrganizationList {
+        log.Printf("org policy is %+v", *organization.Policy) 
 		if organization.OrganizationID == c.Resource {
 			policy = *organization.Policy
 		}
