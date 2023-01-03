@@ -514,3 +514,19 @@ func BindingContains(binding *cloudresourcemanager.Binding, member string) bool 
 	}
 	return false
 }
+
+
+func NewOrganization(orgID string, policy *cloudresourcemanager.Policy) *Organization {
+    if policy == nil {
+        policy = &cloudresourcemanager.Policy{}
+    }
+    organization := &Organization{
+        OrganizationID: orgID,
+        Policy:         policy,
+    }
+
+
+    return organization
+}
+
+
