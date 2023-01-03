@@ -177,19 +177,20 @@ type OrganizationsGetIamPolicyCall struct {
 }
 
 func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
-	var policy cloudresourcemanager.Policy
+//	var policy cloudresourcemanager.Policy
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
-
             log.Printf("org policy is %+v", *organization.Policy) 
-			policy = *organization.Policy
+			policy := *organization.Policy
+            log.Printf("but returning policy %+v", *organization.Policy) 
+            return &policy, nil
 		}
 	}
 
-	if reflect.DeepEqual(policy, cloudresourcemanager.Policy{}) {
+//	if reflect.DeepEqual(policy, cloudresourcemanager.Policy{}) {
 		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
-	}
-	return &policy, nil
+//	}
+//	return &policy, nil
 }
 
 type OrganizationsSetIamPolicyCall struct {
