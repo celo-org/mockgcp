@@ -47,7 +47,7 @@ func TestBindingContains(t *testing.T) {
 func TestProjectsService_FindPolicy(t *testing.T) {
 	projectID := "projects/TestProject"
 	service, _ := NewService(context.TODO())
-	policy := GeneratePolicy(nil)
+	policy := GeneratePolicy()
 	service.Projects.NewProject(projectID, policy)
 
 	want := policy
@@ -61,7 +61,7 @@ func TestProjectsService_FindPolicy(t *testing.T) {
 func TestFoldersService_FindPolicy(t *testing.T) {
 	folderID := "folders/TestFolder"
 	service, _ := NewService(context.TODO())
-	policy := GeneratePolicy(nil)
+	policy := GeneratePolicy()
 	service.Folders.NewFolder(folderID, policy)
 
 	want := policy
@@ -75,7 +75,7 @@ func TestFoldersService_FindPolicy(t *testing.T) {
 func TestOrganizationsService_FindPolicy(t *testing.T) {
 	organizationID := "organizations/TestOrganization"
 	service, _ := NewService(context.TODO())
-	policy := GeneratePolicy(nil)
+	policy := GeneratePolicy()
 	service.Organizations.NewOrganization(organizationID, policy)
 
 	want := policy
@@ -102,7 +102,7 @@ func TestProject_GetIamPolicy_Do(t *testing.T) {
 		projectID := "projects/TestProject"
 		service, _ := NewService(context.TODO())
 
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 
 		service.Projects.GenerateProjects(5, "")
 		service.Projects.NewProject(projectID, policy)
@@ -123,7 +123,7 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		service.Projects.NewProject(projectID, nil)
 
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
 		request.Policy = policy
 
@@ -140,7 +140,7 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		projectID := "TestProject"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request.Policy = policy
 
 		_, err := service.Projects.SetIamPolicy(projectID, request).Do()
@@ -154,7 +154,7 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		projectID := "TestProject"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request.Policy = policy
 
 		service.Projects.NewProject(projectID, nil)
@@ -184,7 +184,7 @@ func TestFolder_GetIamPolicy_Do(t *testing.T) {
 		service, _ := NewService(context.TODO())
 
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 
 		service.Folders.NewFolder(folderID, policy)
 		service.Folders.GenerateFolders(5, "")
@@ -202,7 +202,7 @@ func TestFolder_SetIamPolicy_Do(t *testing.T) {
 		folderID := "folders/TestFolder"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request.Policy = policy
 
 		_, err := service.Folders.SetIamPolicy(folderID, request).Do()
@@ -216,7 +216,7 @@ func TestFolder_SetIamPolicy_Do(t *testing.T) {
 		folderID := "folders/TestFolder"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request.Policy = policy
 
 		service.Folders.NewFolder(folderID, nil)
@@ -234,7 +234,7 @@ func TestFolder_SetIamPolicy_Do(t *testing.T) {
 		folderID := "TestFolder"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request.Policy = policy
 
 		service.Folders.NewFolder(folderID, nil)
@@ -264,7 +264,7 @@ func TestOrganization_GetIamPolicy_Do(t *testing.T) {
 		service, _ := NewService(context.TODO())
 
 		request := new(cloudresourcemanager.GetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 
 		service.Organizations.NewOrganization(organizationID, policy)
 
@@ -281,7 +281,7 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 		organizationID := "organizations/OrganizationFolder"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request.Policy = policy
 
 		_, err := service.Organizations.SetIamPolicy(organizationID, request).Do()
@@ -295,7 +295,7 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 		organizationID := "organizations/TestOrganization"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request.Policy = policy
 
 		service.Organizations.NewOrganization(organizationID, policy)
@@ -312,7 +312,7 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 		organizationID := "TestOrganization"
 		service, _ := NewService(context.TODO())
 		request := new(cloudresourcemanager.SetIamPolicyRequest)
-		policy := GeneratePolicy(nil)
+		policy := GeneratePolicy()
 		request.Policy = policy
 
 		service.Organizations.NewOrganization(organizationID, policy)

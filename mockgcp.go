@@ -179,9 +179,15 @@ type OrganizationsGetIamPolicyCall struct {
 func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
-            log.Printf("org pol is %v", &organization.Policy)
 			policy := *organization.Policy
-            log.Printf("ret pol is %v", &policy)
+            bindings := make([]*cloudresourcemanager.Binding, 0, len(organization.Policy.Bindings))
+            for _, b := range organization.Policy.Bindings {
+                binding := *b
+                bindings = append(bindings, &binding)
+            }
+            policy.Bindings = bindings
+            log.Printf("Policy bindings are %+v", policy)
+            log.Printf("Org Policy bindings are %+v", *organization.Policy)
 
             return &policy, nil
 		}
@@ -478,6 +484,9 @@ func PolicyContains(policy *cloudresourcemanager.Policy, role string) *cloudreso
 }
 
 func BindingContains(binding *cloudresourcemanager.Binding, member string) bool {
+    if binding == nil {
+        return false
+    }
 	for _, m := range binding.Members {
 		if m == member {
 			return true
