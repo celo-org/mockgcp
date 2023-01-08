@@ -404,7 +404,7 @@ func NewPolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemanager.P
 func GeneratePolicy(bindings ...*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
 	rand.Seed(time.Now().UnixNano())
 	if bindings == nil {
-		for i := 0; i < rand.Intn(10); i++ {
+		for i := 0; i < rand.Intn(10) + 10; i++ {
 			bindings = append(bindings, GenerateBinding())
 		}
 	}
