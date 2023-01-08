@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
-    "log"
 	"time"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
