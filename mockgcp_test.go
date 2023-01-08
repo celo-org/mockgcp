@@ -33,17 +33,16 @@ func TestPolicyContains(t *testing.T) {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
-/*
+
 func TestBindingContains(t *testing.T) {
 	binding := GenerateBinding()
 
 	got := BindingContains(binding, binding.Members[0])
-
 	if got != true {
 		t.Errorf("expected BindingContains to return true, but it does not")
 	}
 }
-*/
+
 func TestProjectsService_FindPolicy(t *testing.T) {
 	projectID := "projects/TestProject"
 	service, _ := NewService(context.TODO())
