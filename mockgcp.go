@@ -186,9 +186,6 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
                 bindings = append(bindings, &binding)
             }
             policy.Bindings = bindings
-            log.Printf("Policy bindings are %+v", policy)
-            log.Printf("Org Policy bindings are %+v", *organization.Policy)
-
             return &policy, nil
 		}
 	}
