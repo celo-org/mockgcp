@@ -279,10 +279,16 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
 			policy := *project.Policy
+            bindings := make([]*cloudresourcemanager.Binding, 0, len(project.Policy.Bindings))
+            for _, b := range project.Policy.Bindings {
+                binding := *b
+                bindings = append(bindings, &binding)
+            }
+            policy.Bindings = bindings
             return &policy, nil
 		}
 	}
-		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 }
 
 type ProjectsSetIamPolicyCall struct {
@@ -371,13 +377,20 @@ type FoldersGetIamPolicyCall struct {
 }
 
 func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
+
 	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
 			policy := *folder.Policy
+            bindings := make([]*cloudresourcemanager.Binding, 0, len(folder.Policy.Bindings))
+            for _, b := range folder.Policy.Bindings {
+                binding := *b
+                bindings = append(bindings, &binding)
+            }
+            policy.Bindings = bindings
             return &policy, nil
 		}
 	}
-    return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
 }
 
 type FoldersSetIamPolicyCall struct {
