@@ -179,6 +179,7 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
 			policy := *organization.Policy
+            policy.Bindings = nil
             bindings := make([]*cloudresourcemanager.Binding, 0, len(organization.Policy.Bindings))
             for _, b := range organization.Policy.Bindings {
                 binding := *b
