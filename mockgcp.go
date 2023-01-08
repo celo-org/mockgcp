@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"regexp"
 	"time"
-    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -179,8 +178,8 @@ type OrganizationsGetIamPolicyCall struct {
 func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
-			policy := organization.Policy
-
+			policy := *organization.Policy
+/*
             bindings := make([]*cloudresourcemanager.Binding, 0, len(organization.Policy.Bindings))
             copy (bindings, policy.Bindings)
             for _, b := range organization.Policy.Bindings {
@@ -191,14 +190,15 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 
                 bindings = append(bindings, binding)
             }
-//            policy.Bindings = bindings
+            policy.Bindings = bindings
             log.Printf("before the local binding is %+v", &organization.Policy.Bindings)
             log.Printf("before the other binding is %+v", &bindings)
 
             log.Printf("org policy is %+v", &organization.Policy)
             
             log.Printf("policy is %+v", &policy)
-            return policy, nil
+            */
+            return &policy, nil
 		}
 	}
 	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
