@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"regexp"
 	"time"
+    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -178,7 +179,10 @@ type OrganizationsGetIamPolicyCall struct {
 func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
+            log.Printf("org pol is %v", &organization.Policy)
 			policy := *organization.Policy
+            log.Printf("ret pol is %v", &policy)
+
             return &policy, nil
 		}
 	}
