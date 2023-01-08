@@ -184,14 +184,18 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 
 
             bindings := make([]*cloudresourcemanager.Binding, 0, len(organization.Policy.Bindings))
+            copy (bindings, policy.Bindings)
             for _, b := range organization.Policy.Bindings {
-                binding := *b
+                var binding cloudresourcemanager.Binding
+                binding = *b
+//                log.Printf("b is %+v binding %+v", &b, &binding)
+
                 bindings = append(bindings, &binding)
             }
-            policy.Bindings = bindings
-     log.Printf("before the policy is %+v", &organization.Policy)
-     log.Printf("before the local binding is %+v", &policy)
-
+//            policy.Bindings = bindings
+            log.Printf("before the local binding is %+v", &organization.Policy.Bindings)
+            log.Printf("before the other binding is %+v", &bindings)
+            
 
             return policy, nil
 		}
