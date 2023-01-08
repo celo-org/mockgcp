@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
+    "log"
 	"time"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
@@ -179,13 +180,13 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
 			policy := *organization.Policy
-            policy.Bindings = nil
             bindings := make([]*cloudresourcemanager.Binding, 0, len(organization.Policy.Bindings))
             for _, b := range organization.Policy.Bindings {
                 binding := *b
                 bindings = append(bindings, &binding)
             }
-            copy(policy.Bindings, bindings)
+            policy.Bindings = nil
+            policy.Bindings = append(policy.Bindings, bindings...)
             return &policy, nil
 		}
 	}
