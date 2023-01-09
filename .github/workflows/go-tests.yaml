@@ -7,7 +7,7 @@ on:
 
 env:
   GO_VERSION: 1.19.4
-  GO_WORKING_DIRECTORY: ${{ inputs.path }}
+  GO_WORKING_DIRECTORY: '.'
   TEST_FILE: mockgcp_test.go
 
 jobs:
