@@ -238,7 +238,6 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
 
 //	r.ProjectList = append(r.ProjectList, project)
 
-    log.Printf("TestGCP2")
 
 	return project
 }
