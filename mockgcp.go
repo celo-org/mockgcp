@@ -225,11 +225,16 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
 	}
+    log.Printf("TestGCP1")
 	project := &Project{
 		ProjectID: projectID,
 		Policy:    policy,
 	}
+    log.Printf("TestGCP3")
+
 	r.ProjectList = append(r.ProjectList, project)
+
+    log.Printf("TestGCP2")
 
 	return project
 }
