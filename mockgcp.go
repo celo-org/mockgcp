@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"regexp"
 	"time"
-    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -223,19 +222,19 @@ func NewProjectsService(s *MockService) *ProjectsService {
 }
 
 func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project {
-    log.Printf("TestGCP0")
+    fmt.Printf("TestGCP0")
 
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
 	}
-    log.Printf("TestGCP1")
+    fmt.Printf("TestGCP1")
 	project := &Project{
 		ProjectID: projectID,
 		Policy:    policy,
 	}
-    log.Printf("TestGCP3")
-    log.Printf("project is %T and %+v", project, project)
-    log.Printf("projectList is %T and %+v", r.ProjectList, r.ProjectList)
+    fmt.Printf("TestGCP3")
+    fmt.Printf("project is %T and %+v", project, project)
+    fmt.Printf("projectList is %T and %+v", r.ProjectList, r.ProjectList)
 
 //	r.ProjectList = append(r.ProjectList, project)
 
