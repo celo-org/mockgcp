@@ -467,7 +467,7 @@ func GenerateBinding() *cloudresourcemanager.Binding {
 	role := GenerateRole(StringGenerator())
 	var members []string
 
-	for i := 0; i < rand.Intn(10); i++ {
+	for i := 0; i < rand.Intn(10) + 10 % 10; i++ {
 		members = append(members, GenerateMember(StringGenerator()))
 	}
 
@@ -506,9 +506,6 @@ func PolicyContains(policy *cloudresourcemanager.Policy, role string) *cloudreso
 }
 
 func BindingContains(binding *cloudresourcemanager.Binding, member string) bool {
-    if binding == nil {
-        return false
-    }
 	for _, m := range binding.Members {
 		if m == member {
 			return true
