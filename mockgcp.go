@@ -439,11 +439,7 @@ func GeneratePolicy(bindings ...*cloudresourcemanager.Binding) *cloudresourceman
 }
 
 func AddBindingsToPolicy(policy *cloudresourcemanager.Policy, bindings ...*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
-	if bindings != nil {
-		for _, binding := range bindings {
-			policy.Bindings = append(policy.Bindings, binding)
-		}
-	}
+    policy.Bindings = append(policy.Bindings, bindings...)
 	return policy.Bindings
 }
 
