@@ -222,6 +222,8 @@ func NewProjectsService(s *MockService) *ProjectsService {
 }
 
 func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project {
+    log.Printf("TestGCP0")
+
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
 	}
