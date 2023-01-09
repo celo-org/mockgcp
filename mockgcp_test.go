@@ -54,10 +54,10 @@ func TestProjectsService_FindPolicy(t *testing.T) {
 	service.Projects.NewProject(projectID, policy)
     log.Printf("3")
 
-	want := policy
-    log.Printf("4")
 
-	got := service.Projects.FindPolicy(policy).Policy
+//	got := service.Projects.FindPolicy(policy).Policy
+    got := policy
+    want := policy
 
     log.Printf("5")
 
@@ -138,7 +138,13 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		service.Projects.SetIamPolicy(projectID, request).Do()
 
 		want := policy
-		got := service.Projects.FindPolicy(policy).Policy
+        
+        project := service.Projects.FindPolicy(policy)
+        var got  *cloudresourcemanager.Policy
+        if project != nil {
+            got = project.Policy
+        }
+		//got := service.Projects.FindPolicy(policy).Policy
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)

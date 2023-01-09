@@ -234,8 +234,10 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
 		Policy:    policy,
 	}
     log.Printf("TestGCP3")
+    log.Printf("project is %T and %+v", project, project)
+    log.Printf("projectList is %T and %+v", r.ProjectList, r.ProjectList)
 
-	r.ProjectList = append(r.ProjectList, project)
+//	r.ProjectList = append(r.ProjectList, project)
 
     log.Printf("TestGCP2")
 
