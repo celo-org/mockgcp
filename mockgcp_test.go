@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 	"testing"
-    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
@@ -47,19 +46,13 @@ func TestBindingContains(t *testing.T) {
 func TestProjectsService_FindPolicy(t *testing.T) {
 	projectID := "projects/TestProject"
 	service, _ := NewService(context.TODO())
-    log.Printf("1")
 	policy := GeneratePolicy()
-    log.Printf("2")
 
 	service.Projects.NewProject(projectID, policy)
-    log.Printf("3")
 
 
-//	got := service.Projects.FindPolicy(policy).Policy
-    got := policy
+	got := service.Projects.FindPolicy(policy).Policy
     want := policy
-
-    log.Printf("5")
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)

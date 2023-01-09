@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"regexp"
 	"time"
-    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -226,18 +225,12 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
 	}
-    /*
-	project := Project{
+	project := &Project{
 		ProjectID: projectID,
-		Policy:    &policy,
+		Policy:    policy,
 	}
-*/
-    log.Printf("%+v", policy)
-	//r.ProjectList = append(r.ProjectList, project)
-
-//    return &project
-    return nil
-
+	r.ProjectList = append(r.ProjectList, project)
+    return project
 }
 
 func (r *ProjectsService) GenerateProjects(count int, baseName string) (projects []*Project) {
