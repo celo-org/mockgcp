@@ -45,13 +45,13 @@ func TestBindingContains(t *testing.T) {
 }
 
 func TestProjectsService_FindPolicy(t *testing.T) {
-	//projectID := "projects/TestProject"
-	//service, _ := NewService(context.TODO())
+	projectID := "projects/TestProject"
+	service, _ := NewService(context.TODO())
     log.Printf("1")
 	policy := GeneratePolicy()
     log.Printf("2")
 
-//	service.Projects.NewProject(projectID, policy)
+	service.Projects.NewProject(projectID, policy)
     log.Printf("3")
 
 
