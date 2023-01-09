@@ -230,11 +230,6 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
 		Policy:    policy,
 	}
 
-    project := &Project{
-            ProjectID: "test",
-            Policy: nil,
-          }
-
 	//r.ProjectList = append(r.ProjectList, project)
 
     return project
