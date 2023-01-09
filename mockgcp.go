@@ -467,7 +467,7 @@ func GenerateBinding() *cloudresourcemanager.Binding {
 	role := GenerateRole(StringGenerator())
 	var members []string
 
-	for i := 0; i < (rand.Intn(10) + 1; i++ {
+	for i := 0; i < rand.Intn(10) + 1; i++ {
 		members = append(members, GenerateMember(StringGenerator()))
 	}
 
