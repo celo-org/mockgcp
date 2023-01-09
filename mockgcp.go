@@ -232,7 +232,7 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
 		Policy:    &policy,
 	}
 */
-    log.Printf("+v", policy)
+    log.Printf("%+v", policy)
 	//r.ProjectList = append(r.ProjectList, project)
 
 //    return &project
