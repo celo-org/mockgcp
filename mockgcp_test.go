@@ -50,9 +50,8 @@ func TestProjectsService_FindPolicy(t *testing.T) {
     log.Printf("1")
 	policy := GeneratePolicy()
     log.Printf("2")
-    log.Printf("Policy is now %+v", policy)
 
-	service.Projects.NewProject(projectID, policy)
+//	service.Projects.NewProject(projectID, policy)
     log.Printf("3")
 
 
