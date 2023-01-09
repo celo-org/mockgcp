@@ -234,17 +234,21 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
 	}
 
 
-	r.ProjectList = append(r.ProjectList, project)
 */
     if policy == nil {
     	policy = &cloudresourcemanager.Policy{}
     }
 
-    return &Project{
+    project := &Project{
             ProjectID: "test",
             Policy: policy,
           }
-//	return project
+
+	r.ProjectList = append(r.ProjectList, project)
+
+    return nil
+    //return project
+
 }
 
 func (r *ProjectsService) GenerateProjects(count int, baseName string) (projects []*Project) {
