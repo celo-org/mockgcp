@@ -244,10 +244,10 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
             Policy: policy,
           }
 
-	r.ProjectList = append(r.ProjectList, project)
+//	r.ProjectList = append(r.ProjectList, project)
 
     return nil
-    //return project
+    return project
 
 }
 
