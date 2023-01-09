@@ -223,16 +223,19 @@ func NewProjectsService(s *MockService) *ProjectsService {
 
 func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project {
 	if policy == nil {
-		policy = &cloudresourcemanager.Policy{}
+		policy = cloudresourcemanager.Policy{}
 	}
-	project := &Project{
+    /*
+	project := Project{
 		ProjectID: projectID,
-		Policy:    policy,
+		Policy:    &policy,
 	}
-
+*/
+    log.Printf("+v", policy)
 	//r.ProjectList = append(r.ProjectList, project)
 
-    return project
+//    return &project
+    return nil
 
 }
 
