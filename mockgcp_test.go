@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
+//    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
@@ -46,6 +47,7 @@ func TestBindingContains(t *testing.T) {
 func TestProjectsService_FindPolicy(t *testing.T) {
 	projectID := "projects/TestProject"
 	service, _ := NewService(context.TODO())
+
 	policy := GeneratePolicy()
 
 	service.Projects.NewProject(projectID, policy)

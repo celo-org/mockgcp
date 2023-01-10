@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
 	option "google.golang.org/api/option"
-	htransport "google.golang.org/api/transport/http"
+	//htransport "google.golang.org/api/transport/http"
 )
 
 const (
@@ -64,10 +64,13 @@ type MockService struct {
 }
 
 func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService, error) {
-	client, _, err := htransport.NewClient(ctx, opts...)
+//	client, _, err := htransport.NewClient(ctx, opts...)
+    client := &http.Client{}
+    /*
 	if err != nil {
 		return nil, err
 	}
+    */
 	s, err := New(client)
 	if err != nil {
 		return nil, err
