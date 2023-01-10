@@ -27,7 +27,7 @@ type GCPClient struct {
 	Service *MockService
 }
 
-func NewClient() *GCPClient {
+func NewClient(ctx context.Context) *GCPClient {
 	service, _ := NewService(context.TODO())
 	return &GCPClient{Service: service}
 }
