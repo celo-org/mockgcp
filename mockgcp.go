@@ -12,7 +12,6 @@ import (
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
 	option "google.golang.org/api/option"
-	//htransport "google.golang.org/api/transport/http"
 )
 
 const (
@@ -64,18 +63,11 @@ type MockService struct {
 }
 
 func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService, error) {
-//	client, _, err := htransport.NewClient(ctx, opts...)
     client := &http.Client{}
-    /*
-	if err != nil {
-		return nil, err
-	}
-    */
 	s, err := New(client)
 	if err != nil {
 		return nil, err
 	}
-
 	return s, nil
 }
 
@@ -490,6 +482,7 @@ func PolicyContains(policy *cloudresourcemanager.Policy, role string) *cloudreso
 	return nil
 }
 
+
 func BindingContains(binding *cloudresourcemanager.Binding, member string) bool {
 	for _, m := range binding.Members {
 		if m == member {
@@ -497,4 +490,13 @@ func BindingContains(binding *cloudresourcemanager.Binding, member string) bool 
 		}
 	}
 	return false
+}
+
+func PolicyRoleMembers(policy *cloudresourcemanager.Policy, role string) ([]string, error) {
+    for _, binding := range policy.Bindings {
+        if binding.Role == role {
+            return binding.Members, nil
+         }
+    }
+    return nil, fmt.Errorf("binding not found")
 }

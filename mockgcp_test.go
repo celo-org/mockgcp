@@ -44,6 +44,20 @@ func TestBindingContains(t *testing.T) {
 	}
 }
 
+func TestPolicyRoleMembers(t *testing.T) {
+    policy := GeneratePolicy()
+    binding := GenerateBinding()
+    AddBindingsToPolicy(policy, binding)
+
+    want := binding.Members
+    got, _  := PolicyRoleMembers(policy, binding.Role)
+    
+    if !reflect.DeepEqual(got, want) {
+        t.Errorf("got %v want %v", got, want)
+    }
+}
+
+
 func TestProjectsService_FindPolicy(t *testing.T) {
 	projectID := "projects/TestProject"
 	service, _ := NewService(context.TODO())
@@ -133,13 +147,7 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		service.Projects.SetIamPolicy(projectID, request).Do()
 
 		want := policy
-        
-        project := service.Projects.FindPolicy(policy)
-        var got  *cloudresourcemanager.Policy
-        if project != nil {
-            got = project.Policy
-        }
-		//got := service.Projects.FindPolicy(policy).Policy
+		got := service.Projects.FindPolicy(policy).Policy
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
