@@ -549,13 +549,13 @@ func GenerateMember(principal string) string {
 	return fmt.Sprintf("%v-%d-%d-%v", principal, rand.Intn(99999), rand.Intn(99999), "@testdomain.co")
 }
 
-// Generate Role creates a random string and returns it to be used as a role
+// GenerateRole creates a random string and returns it to be used as a role
 func GenerateRole(role string) string {
 	rand.Seed(time.Now().UnixNano() + int64(len(role)))
 	return fmt.Sprintf("%v-%d-%d", role, rand.Intn(99999), rand.Intn(99999))
 }
 
-// StringGenerate returns a random string
+// StringGenerator returns a random string
 func StringGenerator() string {
 	rand.Seed(time.Now().UnixNano())
 	return fmt.Sprintf("randomString-%d%d", rand.Intn(99999), rand.Intn(99999))

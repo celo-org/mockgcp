@@ -340,7 +340,7 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 		}
 	})
 }
-func MockService_ProjectsList_NewProject(t *testing.T) {
+func MockServiceProjectsListNewProject(t *testing.T) {
 	t.Run("should add project to projectlist", func(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		project := service.Projects.NewProject("", nil)
@@ -367,7 +367,7 @@ func MockService_ProjectsList_NewProject(t *testing.T) {
 	})
 }
 
-func MockService_ProjectsService_GenerateProjects(t *testing.T) {
+func MockServiceProjectsServiceGenerateProjects(t *testing.T) {
 	t.Run("should add projects to projectlist", func(t *testing.T) {
 		countArg := 10
 		service, _ := NewService(context.TODO())
@@ -382,7 +382,7 @@ func MockService_ProjectsService_GenerateProjects(t *testing.T) {
 	})
 }
 
-func MockService_NewFolder(t *testing.T) {
+func MockServiceNewFolder(t *testing.T) {
 	t.Run("should add folder to folderlist", func(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		folder := service.Folders.NewFolder("", nil)
@@ -407,7 +407,7 @@ func MockService_NewFolder(t *testing.T) {
 	})
 }
 
-func MockService_OrganizationsService_NewOrganization(t *testing.T) {
+func MockServiceOrganizationsServiceNewOrganization(t *testing.T) {
 	t.Run("should add organization to organizationlist", func(t *testing.T) {
 		service, _ := NewService(context.TODO())
 
@@ -432,7 +432,7 @@ func MockService_OrganizationsService_NewOrganization(t *testing.T) {
 	})
 }
 
-func MockService_OrganizationsService_GenerateOrganizations(t *testing.T) {
+func MockServiceOrganizationsServiceGenerateOrganizations(t *testing.T) {
 	t.Run("should add organizations to organizationlist", func(t *testing.T) {
 		countArg := 10
 		service, _ := NewService(context.TODO())
