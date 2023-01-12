@@ -1,6 +1,7 @@
 module github.com/celo-org/mockgcp
 
 go 1.19
+3
 
 require (
 	cloud.google.com/go/compute v1.13.0 // indirect
