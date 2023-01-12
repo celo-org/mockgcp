@@ -364,20 +364,20 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
-// ProjectsService is a mock of google Cloud's Project Service
+// FoldersService is a mock of google Cloud's Folder Service
 type FoldersService struct {
 	Service    *MockService
 	FolderList []*Folder
 }
 
-// NewFoldersService will return a new Project Service
+// NewFoldersService will return a new Folder Service
 func NewFoldersService(s *MockService) *FoldersService {
 	rs := &FoldersService{Service: s}
 	return rs
 }
 
 // NewFolder creates a new folder with the specified ID and policy on the Folders Service
-// and returns a pointer to the created project.  If policy isn't specified it will generate a blank one
+// and returns a pointer to the created folder.  If policy isn't specified it will generate a blank one
 func (r *FoldersService) NewFolder(folderID string, policy *cloudresourcemanager.Policy) *Folder {
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
