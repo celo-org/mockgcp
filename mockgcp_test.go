@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
-//    "log"
+	//    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
@@ -45,18 +45,17 @@ func TestBindingContains(t *testing.T) {
 }
 
 func TestPolicyRoleMembers(t *testing.T) {
-    policy := GeneratePolicy()
-    binding := GenerateBinding()
-    AddBindingsToPolicy(policy, binding)
+	policy := GeneratePolicy()
+	binding := GenerateBinding()
+	AddBindingsToPolicy(policy, binding)
 
-    want := binding.Members
-    got, _  := PolicyRoleMembers(policy, binding.Role)
-    
-    if !reflect.DeepEqual(got, want) {
-        t.Errorf("got %v want %v", got, want)
-    }
+	want := binding.Members
+	got, _ := PolicyRoleMembers(policy, binding.Role)
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
 }
-
 
 func TestProjectsService_FindPolicy(t *testing.T) {
 	projectID := "projects/TestProject"
@@ -66,9 +65,8 @@ func TestProjectsService_FindPolicy(t *testing.T) {
 
 	service.Projects.NewProject(projectID, policy)
 
-
 	got := service.Projects.FindPolicy(policy).Policy
-    want := policy
+	want := policy
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)

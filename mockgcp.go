@@ -39,41 +39,39 @@ type PolicyCallItf interface {
 	Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error)
 }
 
-
-
 // Wrapper methods for Google Clouds API
 
-// ProjectSetIamPolicy is a wrapper for the Projects.SetIamPolicy method so we can create and interface to match 
+// ProjectSetIamPolicy is a wrapper for the Projects.SetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
 func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
 
-// ProjectGetIamPolicy is a wrapper for the Projects.GetIamPolicy method so we can create and interface to match 
+// ProjectGetIamPolicy is a wrapper for the Projects.GetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
 func (client *GCPClient) ProjectGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Projects.GetIamPolicy(resource, getiampolicyrequest)
 }
 
-// FolderSetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match 
+// FolderSetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
 func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Folders.SetIamPolicy(resource, setiampolicyrequest)
 }
 
-// FolderGetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match 
+// FolderGetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
 func (client *GCPClient) FolderGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Folders.GetIamPolicy(resource, getiampolicyrequest)
 }
 
-// OrganizationSetIamPolicy is a wrapper for the Organizations.SetIamPolicy method so we can create and interface to match 
+// OrganizationSetIamPolicy is a wrapper for the Organizations.SetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
 func (client *GCPClient) OrganizationSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Organizations.SetIamPolicy(resource, setiampolicyrequest)
 }
 
-// OrganizationGetIamPolicy is a wrapper for the Organizations.GetIamPolicy method so we can create and interface to match 
+// OrganizationGetIamPolicy is a wrapper for the Organizations.GetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
 func (client *GCPClient) OrganizationGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Organizations.GetIamPolicy(resource, getiampolicyrequest)
@@ -88,7 +86,7 @@ type MockService struct {
 
 // NewService creates a MockService and returns it with an http client Wrapper
 func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService, error) {
-    client := &http.Client{}
+	client := &http.Client{}
 	s, err := New(client)
 	if err != nil {
 		return nil, err
@@ -97,7 +95,7 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService,
 }
 
 // New is the client which NewService will call to create a new service.
-// This wil be wrapped with an http wrapper with NewService 
+// This wil be wrapped with an http wrapper with NewService
 func New(client *http.Client) (*MockService, error) {
 	s := &MockService{}
 	s.Folders = NewFoldersService(s)
@@ -208,13 +206,13 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
 			policy := *organization.Policy
-            bindings := make([]*cloudresourcemanager.Binding, 0, len(organization.Policy.Bindings))
-            for _, b := range organization.Policy.Bindings {
-                binding := *b
-                bindings = append(bindings, &binding)
-            }
-            policy.Bindings = bindings
-            return &policy, nil
+			bindings := make([]*cloudresourcemanager.Binding, 0, len(organization.Policy.Bindings))
+			for _, b := range organization.Policy.Bindings {
+				binding := *b
+				bindings = append(bindings, &binding)
+			}
+			policy.Bindings = bindings
+			return &policy, nil
 		}
 	}
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
@@ -227,7 +225,6 @@ type OrganizationsSetIamPolicyCall struct {
 	Resource            string
 	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
-
 
 // Do will be called on OrganizationsGetIamPolicyCall to process the policy change and returns the policy it sets
 func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
@@ -267,7 +264,7 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
 		Policy:    policy,
 	}
 	r.ProjectList = append(r.ProjectList, project)
-    return project
+	return project
 }
 
 // GenerateProjects takes a count of Projects to create, and a basename, and will generate random
@@ -296,7 +293,6 @@ func (r *ProjectsService) FindPolicy(policy *cloudresourcemanager.Policy) *Proje
 	}
 	return nil
 }
-
 
 // GetIamPolicy will take a resource name (project ID), and a getiampolicyrequest
 // and returns a GetIamPolicy Call, so we can run a Do() method on it.
@@ -329,13 +325,13 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
 			policy := *project.Policy
-            bindings := make([]*cloudresourcemanager.Binding, 0, len(project.Policy.Bindings))
-            for _, b := range project.Policy.Bindings {
-                binding := *b
-                bindings = append(bindings, &binding)
-            }
-            policy.Bindings = bindings
-            return &policy, nil
+			bindings := make([]*cloudresourcemanager.Binding, 0, len(project.Policy.Bindings))
+			for _, b := range project.Policy.Bindings {
+				binding := *b
+				bindings = append(bindings, &binding)
+			}
+			policy.Bindings = bindings
+			return &policy, nil
 		}
 	}
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
@@ -358,7 +354,7 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
 			project.Policy = c.Setiampolicyrequest.Policy
-            return project.Policy, nil
+			return project.Policy, nil
 		}
 	}
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
@@ -450,13 +446,13 @@ func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
 			policy := *folder.Policy
-            bindings := make([]*cloudresourcemanager.Binding, 0, len(folder.Policy.Bindings))
-            for _, b := range folder.Policy.Bindings {
-                binding := *b
-                bindings = append(bindings, &binding)
-            }
-            policy.Bindings = bindings
-            return &policy, nil
+			bindings := make([]*cloudresourcemanager.Binding, 0, len(folder.Policy.Bindings))
+			for _, b := range folder.Policy.Bindings {
+				binding := *b
+				bindings = append(bindings, &binding)
+			}
+			policy.Bindings = bindings
+			return &policy, nil
 		}
 	}
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
@@ -479,7 +475,7 @@ func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 	for _, folder := range c.Service.Folders.FolderList {
 		if folder.FolderID == c.Resource {
 			folder.Policy = c.Setiampolicyrequest.Policy
-            return folder.Policy, nil
+			return folder.Policy, nil
 		}
 	}
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
@@ -497,7 +493,7 @@ func NewPolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemanager.P
 func GeneratePolicy(bindings ...*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
 	rand.Seed(time.Now().UnixNano())
 	if bindings == nil {
-		for i := 0; i < rand.Intn(10) + 10; i++ {
+		for i := 0; i < rand.Intn(10)+10; i++ {
 			bindings = append(bindings, GenerateBinding())
 		}
 	}
@@ -507,7 +503,7 @@ func GeneratePolicy(bindings ...*cloudresourcemanager.Binding) *cloudresourceman
 // AddBindingsToPolicy will add bindings to given policy and return the list of pointers to the bindings
 // that were added
 func AddBindingsToPolicy(policy *cloudresourcemanager.Policy, bindings ...*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
-    policy.Bindings = append(policy.Bindings, bindings...)
+	policy.Bindings = append(policy.Bindings, bindings...)
 	return policy.Bindings
 }
 
@@ -528,7 +524,7 @@ func GenerateBinding() *cloudresourcemanager.Binding {
 	role := GenerateRole(StringGenerator())
 	var members []string
 
-	for i := 0; i < rand.Intn(10) + 1; i++ {
+	for i := 0; i < rand.Intn(10)+1; i++ {
 		members = append(members, GenerateMember(StringGenerator()))
 	}
 
@@ -583,10 +579,10 @@ func BindingContains(binding *cloudresourcemanager.Binding, member string) bool 
 
 // PolicyRoleMembers searches a Policy for a role and returns the members if they exist
 func PolicyRoleMembers(policy *cloudresourcemanager.Policy, role string) ([]string, error) {
-    for _, binding := range policy.Bindings {
-        if binding.Role == role {
-            return binding.Members, nil
-         }
-    }
-    return nil, fmt.Errorf("binding not found")
+	for _, binding := range policy.Bindings {
+		if binding.Role == role {
+			return binding.Members, nil
+		}
+	}
+	return nil, fmt.Errorf("binding not found")
 }
