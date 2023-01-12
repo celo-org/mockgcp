@@ -18,10 +18,17 @@ const (
 	resourceNotFoundError = "resource not found"
 )
 
+// GCPClient is the final wrapper we make with locally assigned methods, so we can match it on
+// an interface easier.  Since the google cloud methods aren't directly on the client, but on
+// the services (such as client.Projects.ProjectSetIamPolicy), and I need to create wrappers for
+// them, this lets me call client.ProjectSetIamPolicy instead, and make clients with those to
+// match the interface.  This is the wrappr you should probably be using if you want to use
+// the library.
 type GCPClient struct {
 	Service *MockService
 }
 
+// NewClient returns the mock GCPClient client above
 func NewClient() *GCPClient {
 	service, _ := NewService(context.TODO())
 	return &GCPClient{Service: service}
@@ -89,7 +96,7 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService,
 	return s, nil
 }
 
-// The client which NewService will call to create a new service.
+// New is the client which NewService will call to create a new service.
 // This wil be wrapped with an http wrapper with NewService 
 func New(client *http.Client) (*MockService, error) {
 	s := &MockService{}
@@ -188,12 +195,15 @@ func (r *OrganizationsService) SetIamPolicy(resource string, setiampolicyrequest
 	return c
 }
 
+// OrganizationsGetIamPolicyCall is a structure that is returned by Organizations.GetIamPolicy which contains the Request
+// to get a policy.  Then we call Do() on it to actually return the policy
 type OrganizationsGetIamPolicyCall struct {
 	Service             *MockService
 	Resource            string
 	Getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
 }
 
+// Do will be called on OrganizationsGetIamPolicyCall and return the policy found
 func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	for _, organization := range c.Service.Organizations.OrganizationList {
 		if organization.OrganizationID == c.Resource {
@@ -210,12 +220,16 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
+// OrganizationsSetIamPolicyCall is a structure that is returned by Organizations.SetIamPolicy which contains the Request
+// to get a policy.  Then we call Do() on in it to Set the Organization Policy
 type OrganizationsSetIamPolicyCall struct {
 	Service             *MockService
 	Resource            string
 	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
 
+
+// Do will be called on OrganizationsGetIamPolicyCall to process the policy change and returns the policy it sets
 func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	match, _ := regexp.MatchString("organizations/.*", c.Resource)
 	if !match {
@@ -230,16 +244,20 @@ func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
+// ProjectsService is a mock of google Cloud's Project Service
 type ProjectsService struct {
 	Service     *MockService
 	ProjectList []*Project
 }
 
+// NewProjectsService will return a new Project Service
 func NewProjectsService(s *MockService) *ProjectsService {
 	rs := &ProjectsService{Service: s}
 	return rs
 }
 
+// NewProject creates a new project with the specified ID and policy on the Projects Service
+// and returns a pointer to the created project.  If policy isn't specified it will generate a blank one
 func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project {
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
@@ -252,6 +270,8 @@ func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemana
     return project
 }
 
+// GenerateProjects takes a count of Projects to create, and a basename, and will generate random
+// data for the Projects and add them to the Projects Service
 func (r *ProjectsService) GenerateProjects(count int, baseName string) (projects []*Project) {
 	rand.Seed(time.Now().UnixNano())
 	startNumber := rand.Intn(9999)
@@ -264,6 +284,10 @@ func (r *ProjectsService) GenerateProjects(count int, baseName string) (projects
 	return projects
 }
 
+// FindPolicy will Search a Project Service and return the project with that policy.
+// It will only return the first one found, so this should only be used for testing
+// where you need to return the project added, and not a reliable way of determining
+// which projects have a policy
 func (r *ProjectsService) FindPolicy(policy *cloudresourcemanager.Policy) *Project {
 	for _, project := range r.ProjectList {
 		if reflect.DeepEqual(policy, project.Policy) {
@@ -273,6 +297,9 @@ func (r *ProjectsService) FindPolicy(policy *cloudresourcemanager.Policy) *Proje
 	return nil
 }
 
+
+// GetIamPolicy will take a resource name (project ID), and a getiampolicyrequest
+// and returns a GetIamPolicy Call, so we can run a Do() method on it.
 func (r *ProjectsService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *ProjectsGetIamPolicyCall {
 	c := &ProjectsGetIamPolicyCall{Service: r.Service}
 	c.Resource = resource
@@ -280,6 +307,8 @@ func (r *ProjectsService) GetIamPolicy(resource string, getiampolicyrequest *clo
 	return c
 }
 
+// SetIamPolicy will take a resource name (project ID), and a setiampolicyrequest
+// and returns a SetIamPolicy Call, so we can run a Do() method on it.
 func (r *ProjectsService) SetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *ProjectsSetIamPolicyCall {
 	c := &ProjectsSetIamPolicyCall{Service: r.Service}
 	c.Resource = resource
@@ -287,12 +316,15 @@ func (r *ProjectsService) SetIamPolicy(resource string, setiampolicyrequest *clo
 	return c
 }
 
+// ProjectsGetIamPolicyCall is a structure that is returned by Projects.GetIamPolicy which contains the Request
+// to get a policy.  Then we call Do() on it to actually return the policy
 type ProjectsGetIamPolicyCall struct {
 	Service             *MockService
 	Resource            string
 	Getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
 }
 
+// Do will be called on OrganizationsGetIamPolicyCall and return the policy found
 func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	for _, project := range c.Service.Projects.ProjectList {
 		if project.ProjectID == c.Resource {
@@ -309,13 +341,15 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
+// ProjectsSetIamPolicyCall is a structure that is returned by Projects.SetIamPolicy which contains the Request
+// to get a policy.  Then we call Do() on in it to Set the Project Policy
 type ProjectsSetIamPolicyCall struct {
 	Service             *MockService
 	Resource            string
 	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
 
-
+// Do will be called on ProjectsGetIamPolicyCall to process the policy change and returns the policy it sets
 func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	match, _ := regexp.MatchString("projects/.*", c.Resource)
 	if !match {
@@ -330,16 +364,20 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
+// ProjectsService is a mock of google Cloud's Project Service
 type FoldersService struct {
 	Service    *MockService
 	FolderList []*Folder
 }
 
+// NewFoldersService will return a new Project Service
 func NewFoldersService(s *MockService) *FoldersService {
 	rs := &FoldersService{Service: s}
 	return rs
 }
 
+// NewFolder creates a new folder with the specified ID and policy on the Folders Service
+// and returns a pointer to the created project.  If policy isn't specified it will generate a blank one
 func (r *FoldersService) NewFolder(folderID string, policy *cloudresourcemanager.Policy) *Folder {
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
@@ -353,6 +391,8 @@ func (r *FoldersService) NewFolder(folderID string, policy *cloudresourcemanager
 	return folder
 }
 
+// GenerateFolders takes a count of Folders to create, and a basename, and will generate random
+// data for the Folders and add them to the Folders Service
 func (r *FoldersService) GenerateFolders(count int, baseName string) (folders []*Folder) {
 	rand.Seed(time.Now().UnixNano())
 	startNumber := rand.Intn(9999)
@@ -365,6 +405,10 @@ func (r *FoldersService) GenerateFolders(count int, baseName string) (folders []
 	return folders
 }
 
+// FindPolicy will Search a Folder Service and return the folder with that policy.
+// It will only return the first one found, so this should only be used for testing
+// where you need to return the folder added, and not a reliable way of determining
+// which folders have a policy
 func (r *FoldersService) FindPolicy(policy *cloudresourcemanager.Policy) *Folder {
 	for _, folder := range r.FolderList {
 		if reflect.DeepEqual(policy, folder.Policy) {
@@ -374,6 +418,8 @@ func (r *FoldersService) FindPolicy(policy *cloudresourcemanager.Policy) *Folder
 	return nil
 }
 
+// GetIamPolicy will take a resource name (folder ID), and a getiampolicyrequest
+// and returns a GetIamPolicy Call, so we can run a Do() method on it.
 func (r *FoldersService) GetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) *FoldersGetIamPolicyCall {
 	c := &FoldersGetIamPolicyCall{Service: r.Service}
 	c.Resource = resource
@@ -381,6 +427,8 @@ func (r *FoldersService) GetIamPolicy(resource string, getiampolicyrequest *clou
 	return c
 }
 
+// SetIamPolicy will take a resource name (folder ID), and a setiampolicyrequest
+// and returns a SetIamPolicy Call, so we can run a Do() method on it.
 func (r *FoldersService) SetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) *FoldersSetIamPolicyCall {
 	c := &FoldersSetIamPolicyCall{Service: r.Service}
 	c.Resource = resource
@@ -388,12 +436,15 @@ func (r *FoldersService) SetIamPolicy(resource string, setiampolicyrequest *clou
 	return c
 }
 
+// FoldersGetIamPolicyCall is a structure that is returned by Folders.GetIamPolicy which contains the Request
+// to get a policy.  Then we call Do() on it to actually return the policy
 type FoldersGetIamPolicyCall struct {
 	Service             *MockService
 	Resource            string
 	Getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest
 }
 
+// Do will be called on OrganizationsGetIamPolicyCall and return the policy found
 func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 
 	for _, folder := range c.Service.Folders.FolderList {
@@ -411,12 +462,15 @@ func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
+// FoldersSetIamPolicyCall is a structure that is returned by Folders.SetIamPolicy which contains the Request
+// to get a policy.  Then we call Do() on in it to Set the Folder Policy
 type FoldersSetIamPolicyCall struct {
 	Service             *MockService
 	Resource            string
 	Setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest
 }
 
+// Do will be called on FoldersGetIamPolicyCall to process the policy change and returns the policy it sets
 func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error) {
 	match, _ := regexp.MatchString("folders/.*", c.Resource)
 	if !match {
@@ -428,16 +482,18 @@ func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
             return folder.Policy, nil
 		}
 	}
-
-		return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
+	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
+// NewPolicy creates a policy with the specified bindings
 func NewPolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
 	return &cloudresourcemanager.Policy{
 		Bindings: bindings,
 	}
 }
 
+// GeneratePolicy takes a number of bindings and generates a policy.  If no bindings are
+// supplied, 10 of them will be generated.  For use with testing
 func GeneratePolicy(bindings ...*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
 	rand.Seed(time.Now().UnixNano())
 	if bindings == nil {
@@ -448,11 +504,14 @@ func GeneratePolicy(bindings ...*cloudresourcemanager.Binding) *cloudresourceman
 	return NewPolicy(bindings)
 }
 
+// AddBindingsToPolicy will add bindings to given policy and return the list of pointers to the bindings
+// that were added
 func AddBindingsToPolicy(policy *cloudresourcemanager.Policy, bindings ...*cloudresourcemanager.Binding) []*cloudresourcemanager.Binding {
     policy.Bindings = append(policy.Bindings, bindings...)
 	return policy.Bindings
 }
 
+// NewBinding takes a role and members and returns a binding
 func NewBinding(role string, members ...string) *cloudresourcemanager.Binding {
 	m := make([]string, len(members))
 	copy(m, members)
@@ -462,6 +521,7 @@ func NewBinding(role string, members ...string) *cloudresourcemanager.Binding {
 	}
 }
 
+// GenerateBinding Generates a binding with 10 members for use in testing
 func GenerateBinding() *cloudresourcemanager.Binding {
 	rand.Seed(time.Now().UnixNano())
 
@@ -475,6 +535,7 @@ func GenerateBinding() *cloudresourcemanager.Binding {
 	return NewBinding(role, members...)
 }
 
+// GenerateBindings will create the specified number of bindings
 func GenerateBindings(number int) (bindings []*cloudresourcemanager.Binding) {
 	for i := 0; i < number; i++ {
 		bindings = append(bindings, GenerateBinding())
@@ -482,21 +543,25 @@ func GenerateBindings(number int) (bindings []*cloudresourcemanager.Binding) {
 	return bindings
 }
 
+// GenerateMember creates a binding member with a random name off a base principal in the format of an email address
 func GenerateMember(principal string) string {
 	rand.Seed(time.Now().UnixNano() + int64(len(principal)))
 	return fmt.Sprintf("%v-%d-%d-%v", principal, rand.Intn(99999), rand.Intn(99999), "@testdomain.co")
 }
 
+// Generate Role creates a random string and returns it to be used as a role
 func GenerateRole(role string) string {
 	rand.Seed(time.Now().UnixNano() + int64(len(role)))
 	return fmt.Sprintf("%v-%d-%d", role, rand.Intn(99999), rand.Intn(99999))
 }
 
+// StringGenerate returns a random string
 func StringGenerator() string {
 	rand.Seed(time.Now().UnixNano())
 	return fmt.Sprintf("randomString-%d%d", rand.Intn(99999), rand.Intn(99999))
 }
 
+// PolicyContains searches a policy for a role and returns its binding
 func PolicyContains(policy *cloudresourcemanager.Policy, role string) *cloudresourcemanager.Binding {
 	for _, binding := range policy.Bindings {
 		if binding.Role == role {
@@ -506,7 +571,7 @@ func PolicyContains(policy *cloudresourcemanager.Policy, role string) *cloudreso
 	return nil
 }
 
-
+// BindingContains searches a binding for a member string and returns a boolean to indicate if found
 func BindingContains(binding *cloudresourcemanager.Binding, member string) bool {
 	for _, m := range binding.Members {
 		if m == member {
@@ -516,6 +581,7 @@ func BindingContains(binding *cloudresourcemanager.Binding, member string) bool 
 	return false
 }
 
+// PolicyRoleMembers searches a Policy for a role and returns the members if they exist
 func PolicyRoleMembers(policy *cloudresourcemanager.Policy, role string) ([]string, error) {
     for _, binding := range policy.Bindings {
         if binding.Role == role {
