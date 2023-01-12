@@ -4,7 +4,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
-//    "log"
+	//    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 )
@@ -45,18 +45,17 @@ func TestBindingContains(t *testing.T) {
 }
 
 func TestPolicyRoleMembers(t *testing.T) {
-    policy := GeneratePolicy()
-    binding := GenerateBinding()
-    AddBindingsToPolicy(policy, binding)
+	policy := GeneratePolicy()
+	binding := GenerateBinding()
+	AddBindingsToPolicy(policy, binding)
 
-    want := binding.Members
-    got, _  := PolicyRoleMembers(policy, binding.Role)
-    
-    if !reflect.DeepEqual(got, want) {
-        t.Errorf("got %v want %v", got, want)
-    }
+	want := binding.Members
+	got, _ := PolicyRoleMembers(policy, binding.Role)
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
 }
-
 
 func TestProjectsService_FindPolicy(t *testing.T) {
 	projectID := "projects/TestProject"
@@ -66,9 +65,8 @@ func TestProjectsService_FindPolicy(t *testing.T) {
 
 	service.Projects.NewProject(projectID, policy)
 
-
 	got := service.Projects.FindPolicy(policy).Policy
-    want := policy
+	want := policy
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)
@@ -340,7 +338,7 @@ func TestOrganization_SetIamPolicy_Do(t *testing.T) {
 		}
 	})
 }
-func MockService_ProjectsList_NewProject(t *testing.T) {
+func MockServiceProjectsListNewProject(t *testing.T) {
 	t.Run("should add project to projectlist", func(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		project := service.Projects.NewProject("", nil)
@@ -367,7 +365,7 @@ func MockService_ProjectsList_NewProject(t *testing.T) {
 	})
 }
 
-func MockService_ProjectsService_GenerateProjects(t *testing.T) {
+func MockServiceProjectsServiceGenerateProjects(t *testing.T) {
 	t.Run("should add projects to projectlist", func(t *testing.T) {
 		countArg := 10
 		service, _ := NewService(context.TODO())
@@ -382,7 +380,7 @@ func MockService_ProjectsService_GenerateProjects(t *testing.T) {
 	})
 }
 
-func MockService_NewFolder(t *testing.T) {
+func MockServiceNewFolder(t *testing.T) {
 	t.Run("should add folder to folderlist", func(t *testing.T) {
 		service, _ := NewService(context.TODO())
 		folder := service.Folders.NewFolder("", nil)
@@ -407,7 +405,7 @@ func MockService_NewFolder(t *testing.T) {
 	})
 }
 
-func MockService_OrganizationsService_NewOrganization(t *testing.T) {
+func MockServiceOrganizationsServiceNewOrganization(t *testing.T) {
 	t.Run("should add organization to organizationlist", func(t *testing.T) {
 		service, _ := NewService(context.TODO())
 
@@ -432,7 +430,7 @@ func MockService_OrganizationsService_NewOrganization(t *testing.T) {
 	})
 }
 
-func MockService_OrganizationsService_GenerateOrganizations(t *testing.T) {
+func MockServiceOrganizationsServiceGenerateOrganizations(t *testing.T) {
 	t.Run("should add organizations to organizationlist", func(t *testing.T) {
 		countArg := 10
 		service, _ := NewService(context.TODO())
