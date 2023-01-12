@@ -15,12 +15,8 @@ import (
 )
 
 const (
-	ResourceNotFoundError = "resource not found"
+	resourceNotFoundError = "resource not found"
 )
-
-type PolicyCallItf interface {
-	Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error)
-}
 
 type GCPClient struct {
 	Service *MockService
@@ -31,37 +27,59 @@ func NewClient() *GCPClient {
 	return &GCPClient{Service: service}
 }
 
+// PolicyCallItf interface will match on Do() so we can call it on SetPolicyCall and GetPolicyCall
+type PolicyCallItf interface {
+	Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error)
+}
+
+
+
 // Wrapper methods for Google Clouds API
+
+// ProjectSetIamPolicy is a wrapper for the Projects.SetIamPolicy method so we can create and interface to match 
+// our mock client to the GCP client
 func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
+
+// ProjectGetIamPolicy is a wrapper for the Projects.GetIamPolicy method so we can create and interface to match 
+// our mock client to the GCP client
 func (client *GCPClient) ProjectGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Projects.GetIamPolicy(resource, getiampolicyrequest)
 }
 
+// FolderSetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match 
+// our mock client to the GCP client
 func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Folders.SetIamPolicy(resource, setiampolicyrequest)
 }
 
+// FolderGetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match 
+// our mock client to the GCP client
 func (client *GCPClient) FolderGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Folders.GetIamPolicy(resource, getiampolicyrequest)
 }
 
+// OrganizationSetIamPolicy is a wrapper for the Organizations.SetIamPolicy method so we can create and interface to match 
+// our mock client to the GCP client
 func (client *GCPClient) OrganizationSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Organizations.SetIamPolicy(resource, setiampolicyrequest)
 }
 
+// OrganizationGetIamPolicy is a wrapper for the Organizations.GetIamPolicy method so we can create and interface to match 
+// our mock client to the GCP client
 func (client *GCPClient) OrganizationGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Organizations.GetIamPolicy(resource, getiampolicyrequest)
 }
 
-// A mockup of cloud resource manager's service
+// MockService is a mockup of cloud resource manager's service (wrapper for it's client)
 type MockService struct {
 	Projects      *ProjectsService
 	Folders       *FoldersService
 	Organizations *OrganizationsService
 }
 
+// NewService creates a MockService and returns it with an http client Wrapper
 func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService, error) {
     client := &http.Client{}
 	s, err := New(client)
@@ -72,6 +90,7 @@ func NewService(ctx context.Context, opts ...option.ClientOption) (*MockService,
 }
 
 // The client which NewService will call to create a new service.
+// This wil be wrapped with an http wrapper with NewService 
 func New(client *http.Client) (*MockService, error) {
 	s := &MockService{}
 	s.Folders = NewFoldersService(s)
@@ -80,26 +99,31 @@ func New(client *http.Client) (*MockService, error) {
 	return s, nil
 }
 
+// Organization is a mock of a google cloud Organization
 type Organization struct {
 	OrganizationID string
 	Policy         *cloudresourcemanager.Policy
 }
 
+// Project is a mock of a google cloud Project
 type Project struct {
 	ProjectID string
 	Policy    *cloudresourcemanager.Policy
 }
 
+// Folder is a mock of a google cloud Folder
 type Folder struct {
 	FolderID string
 	Policy   *cloudresourcemanager.Policy
 }
 
+// OrganizationsService is a mock of google Cloud's Organization Service
 type OrganizationsService struct {
 	Service          *MockService
 	OrganizationList []*Organization
 }
 
+// NewOrganizationsService will return a new Organization Service
 func NewOrganizationsService(s *MockService) *OrganizationsService {
 	rs := &OrganizationsService{Service: s}
 	return rs
@@ -183,7 +207,7 @@ func (c *OrganizationsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
             return &policy, nil
 		}
 	}
-	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
 type OrganizationsSetIamPolicyCall struct {
@@ -203,7 +227,7 @@ func (c *OrganizationsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloud
 			return organization.Policy, nil
 		}
 	}
-	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
 type ProjectsService struct {
@@ -282,7 +306,7 @@ func (c *ProjectsGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
             return &policy, nil
 		}
 	}
-	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
 type ProjectsSetIamPolicyCall struct {
@@ -303,7 +327,7 @@ func (c *ProjectsSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresou
             return project.Policy, nil
 		}
 	}
-	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
 type FoldersService struct {
@@ -384,7 +408,7 @@ func (c *FoldersGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
             return &policy, nil
 		}
 	}
-	return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+	return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
 type FoldersSetIamPolicyCall struct {
@@ -405,7 +429,7 @@ func (c *FoldersSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*cloudresour
 		}
 	}
 
-		return nil, fmt.Errorf("%v: %v", ResourceNotFoundError, c.Resource)
+		return nil, fmt.Errorf("%v: %v", resourceNotFoundError, c.Resource)
 }
 
 func NewPolicy(bindings []*cloudresourcemanager.Binding) *cloudresourcemanager.Policy {
