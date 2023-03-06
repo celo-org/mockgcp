@@ -40,6 +40,15 @@ type PolicyCallItf interface {
 	Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error)
 }
 
+// SearchCallItf interface will match for Do() so we can match
+type SearchCallItf interface {
+	Do(opts ...googleapi.CallOption) (*ResponseItf, error)
+}
+
+type ResponseItf interface {
+    
+}
+
 // Wrapper methods for Google Clouds API
 
 // ProjectSetIamPolicy is a wrapper for the Projects.SetIamPolicy method so we can create and interface to match
