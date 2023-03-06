@@ -42,7 +42,7 @@ type PolicyCallItf interface {
 
 // SearchCallItf interface will match for Do() so we can match
 type SearchCallItf interface {
-	Do(opts ...googleapi.CallOption) (*ResponseItf, error)
+	Do() (*ResponseItf, error)
 }
 
 type ResponseItf interface {
