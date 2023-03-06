@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
-	"strings"
 	"time"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
@@ -272,7 +271,7 @@ func NewProjectsService(s *MockService) *ProjectsService {
 	rs := &ProjectsService{Service: s}
 	return rs
 }
-
+/*
 // ProjectsSearchCall contains the query information for a project search
 type ProjectsSearchCall struct {
 	query   string
@@ -312,7 +311,7 @@ func (call *ProjectsSearchCall) Do(opts ...googleapi.CallOption) (*SearchProject
 	}
 	return response, nil
 }
-
+*/
 // NewProject creates a new project with the specified ID and policy on the Projects Service
 // and returns a pointer to the created project.  If policy isn't specified it will generate a blank one
 func (r *ProjectsService) NewProject(projectID, projectName string, policy *cloudresourcemanager.Policy) *Project {
