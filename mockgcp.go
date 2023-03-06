@@ -347,9 +347,12 @@ func (r *ProjectsService) GenerateProjects(count int, baseName string) (projects
 // where you need to return the project added, and not a reliable way of determining
 // which projects have a policy
 func (r *ProjectsService) FindPolicy(policy *cloudresourcemanager.Policy) *Project {
-    log.Printf("PROJECTS %+v\n", r.ProjectList)
-    log.Printf("policy is %+v\n", policy)
 	for _, project := range r.ProjectList {
+
+        log.Printf("POLICY is %+v\n", policy)
+        log.Printf("PROJECT %+v\n", *project)
+        log.Printf("PROJECT POLICY IS %+v\n", *project.Policy)
+
 		if reflect.DeepEqual(policy, project.Policy) {
 			return project
 		}
