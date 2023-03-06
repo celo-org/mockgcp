@@ -42,7 +42,7 @@ type PolicyCallItf interface {
 
 // SearchCallItf interface will match for Do() so we can match
 type SearchCallItf interface {
-	Do() (ResponseItf, error)
+	Do(opts ...googleapi.CallOption) (ResponseItf, error)
 }
 
 type ResponseItf interface {
@@ -247,7 +247,7 @@ func (call *OrganizationsSearchCall) Query(query string) *OrganizationsSearchCal
 }
 
 // Do executes the Organizations Search Call and returns the response
-func (call *OrganizationsSearchCall) Do() (*SearchOrganizationsResponse, error) {
+func (call *OrganizationsSearchCall) Do(opts ...googleapi.CallOption) (*SearchOrganizationsResponse, error) {
 	query := strings.Split(call.query, "=")
 	response := &SearchOrganizationsResponse{}
 	if len(query) != 2 || query[0] != "domain" {
@@ -346,7 +346,7 @@ func (call *ProjectsSearchCall) Query(query string) *ProjectsSearchCall {
 }
 
 // Do executes the Projects Search Call and returns the response
-func (call *ProjectsSearchCall) Do() (*SearchProjectsResponse, error) {
+func (call *ProjectsSearchCall) Do(opts ...googleapi.CallOption) (*SearchProjectsResponse, error) {
 	query := strings.Split(call.query, "=")
 	response := &SearchProjectsResponse{}
 	if len(query) != 2 || query[0] != "displayName" {
@@ -567,7 +567,7 @@ func (call *FoldersSearchCall) Query(query string) *FoldersSearchCall {
 }
 
 // Do executes the Folders Search Call and returns the response
-func (call *FoldersSearchCall) Do() (*SearchFoldersResponse, error) {
+func (call *FoldersSearchCall) Do(opts ...googleapi.CallOption) (*SearchFoldersResponse, error) {
 	query := strings.Split(call.query, "=")
 	response := &SearchFoldersResponse{}
 	if len(query) != 2 || query[0] != "displayName" {
