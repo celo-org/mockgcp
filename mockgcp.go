@@ -41,13 +41,13 @@ type PolicyCallItf interface {
 }
 
 // SearchCallItf interface will match for Do() so we can match
-type SearchCallItf interface {
-	Do(opts ...googleapi.CallOption) (ResponseItf, error)
-}
+//type SearchCallItf interface {
+//	Do(opts ...googleapi.CallOption) (ResponseItf, error)
+//}
 
-type ResponseItf interface {
-    
-}
+//type ResponseItf interface {
+//   
+//}
 
 // Wrapper methods for Google Clouds API
 
@@ -69,9 +69,11 @@ func (client *GCPClient) ProjectGetIamPolicy(resource string, getiampolicyreques
 }
 
 // FoldersSearch Searches for folders by Name to get the ID
+/*
 func (client *GCPClient) FoldersSearch() *FoldersSearchCall {
 	return client.Service.Folders.Search()
 }
+*/
 
 // FolderSetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
@@ -84,12 +86,12 @@ func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest
 func (client *GCPClient) FolderGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Folders.GetIamPolicy(resource, getiampolicyrequest)
 }
-
+/*
 // OrganizationsSearch Searches for folders by Name to get the ID
 func (client *GCPClient) OrganizationsSearch() *OrganizationsSearchCall {
 	return client.Service.Organizations.Search()
 }
-
+*/
 // OrganizationSetIamPolicy is a wrapper for the Organizations.SetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
 func (client *GCPClient) OrganizationSetIamPolicy(resource string, setiampolicyrequest *cloudresourcemanager.SetIamPolicyRequest) PolicyCallItf {
@@ -221,7 +223,7 @@ func (r *OrganizationsService) SetIamPolicy(resource string, setiampolicyrequest
 	c.Setiampolicyrequest = setiampolicyrequest
 	return c
 }
-
+/*
 // OrganizationsSearchCall contains the query information for a organization search
 type OrganizationsSearchCall struct {
 	query   string
@@ -260,6 +262,7 @@ func (call *OrganizationsSearchCall) Do(opts ...googleapi.CallOption) (*SearchOr
 	}
 	return response, nil
 }
+*/
 
 // OrganizationsGetIamPolicyCall is a structure that is returned by Organizations.GetIamPolicy which contains the Request
 // to get a policy.  Then we call Do() on it to actually return the policy
@@ -541,7 +544,7 @@ func (r *FoldersService) SetIamPolicy(resource string, setiampolicyrequest *clou
 	c.Setiampolicyrequest = setiampolicyrequest
 	return c
 }
-
+/*
 // FoldersSearchCall contains the query information for a folder search
 type FoldersSearchCall struct {
 	query   string
@@ -580,7 +583,7 @@ func (call *FoldersSearchCall) Do(opts ...googleapi.CallOption) (*SearchFoldersR
 	}
 	return response, nil
 }
-
+*/
 // FoldersGetIamPolicyCall is a structure that is returned by Folders.GetIamPolicy which contains the Request
 // to get a policy.  Then we call Do() on it to actually return the policy
 type FoldersGetIamPolicyCall struct {

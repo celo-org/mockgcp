@@ -99,7 +99,7 @@ func TestOrganizationsService_FindPolicy(t *testing.T) {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
-
+/*
 func TestOrganization_OrganizationsSearchCall_Do(t *testing.T) {
 	t.Run("should return Organization with proper ID", func(t *testing.T) {
 
@@ -163,7 +163,7 @@ func TestProject_ProjectsSearchCall_Do(t *testing.T) {
 		}
 	})
 }
-
+*/
 func TestProject_GetIamPolicy_Do(t *testing.T) {
 	t.Run("should return err if project doesn't exist", func(t *testing.T) {
 		projectID := "projects/TestProject"
@@ -243,7 +243,7 @@ func TestProject_SetIamPolicy_Do(t *testing.T) {
 		}
 	})
 }
-
+/*
 func TestFolder_FoldersSearchCall_Do(t *testing.T) {
 	t.Run("should return Folder with proper ID", func(t *testing.T) {
 
@@ -275,7 +275,7 @@ func TestFolder_FoldersSearchCall_Do(t *testing.T) {
 		}
 	})
 }
-
+*/
 func TestFolder_GetIamPolicy_Do(t *testing.T) {
 	t.Run("should err if folder  doesn't exist", func(t *testing.T) {
 		folderID := "folders/TestFolder"
