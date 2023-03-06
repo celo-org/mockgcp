@@ -251,7 +251,7 @@ func (call *OrganizationsSearchCall) Do() (*SearchOrganizationsResponse, error) 
 	query := strings.Split(call.query, "=")
 	response := &SearchOrganizationsResponse{}
 	if len(query) != 2 || query[0] != "domain" {
-		return response, fmt.Errorf("Invalid Organization Query")
+		return response, fmt.Errorf("invalid organization query")
 	}
 	for _, org := range call.service.OrganizationList {
 		if org.Domain == query[1] {
@@ -350,7 +350,7 @@ func (call *ProjectsSearchCall) Do() (*SearchProjectsResponse, error) {
 	query := strings.Split(call.query, "=")
 	response := &SearchProjectsResponse{}
 	if len(query) != 2 || query[0] != "displayName" {
-		return response, fmt.Errorf("Invalid Project Query")
+		return response, fmt.Errorf("invalid project query")
 	}
 
 	for _, project := range call.service.ProjectList {
@@ -571,7 +571,7 @@ func (call *FoldersSearchCall) Do() (*SearchFoldersResponse, error) {
 	query := strings.Split(call.query, "=")
 	response := &SearchFoldersResponse{}
 	if len(query) != 2 || query[0] != "displayName" {
-		return response, fmt.Errorf("Invalid Folder Query")
+		return response, fmt.Errorf("invalid folder query")
 	}
 	for _, folder := range call.service.FolderList {
 		if folder.DisplayName == query[1] {
