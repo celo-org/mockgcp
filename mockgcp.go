@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-    "log"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
 	googleapi "google.golang.org/api/googleapi"
@@ -348,11 +347,6 @@ func (r *ProjectsService) GenerateProjects(count int, baseName string) (projects
 // which projects have a policy
 func (r *ProjectsService) FindPolicy(policy *cloudresourcemanager.Policy) *Project {
 	for _, project := range r.ProjectList {
-
-        log.Printf("POLICY is %+v\n", policy)
-        log.Printf("PROJECT %+v\n", *project)
-        log.Printf("PROJECT POLICY IS %+v\n", *project.Policy)
-
 		if reflect.DeepEqual(policy, project.Policy) {
 			return project
 		}
