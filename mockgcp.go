@@ -50,8 +50,9 @@ func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyreques
 
 // ProjectsSearch Searches for folders by Name to get the ID
 func (client *GCPClient) ProjectsSearch() *cloudresourcemanager.ProjectsSearchCall {
-	return nil
+	return &cloudresourcemanager.ProjectsSearchCall{}
 }
+
 
 // ProjectGetIamPolicy is a wrapper for the Projects.GetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
