@@ -61,7 +61,7 @@ func (client *GCPClient) ProjectGetIamPolicy(resource string, getiampolicyreques
 
 // FoldersSearch Searches for folders by Name to get the ID
 func (client *GCPClient) FoldersSearch() *cloudresourcemanager.FoldersSearchCall {
-	return nil
+	return &cloudresourcemanager.FoldersSearchCall{}
 }
 
 // FolderSetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match
