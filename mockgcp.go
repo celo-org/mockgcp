@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
+	"strings"
 	"time"
 
 	"google.golang.org/api/cloudresourcemanager/v3"
@@ -34,9 +35,18 @@ func NewClient() *GCPClient {
 	return &GCPClient{Service: service}
 }
 
-// PolicyCallItf interface will match on Do() so we can call it on SetPolicyCall and GetPolicyCall
+// PolicyCallItf interface will match for Do() so we can call it on SetPolicyCall and GetPolicyCall
 type PolicyCallItf interface {
 	Do(opts ...googleapi.CallOption) (*cloudresourcemanager.Policy, error)
+}
+
+// SearchCallItf interface will match for Do() so we can match
+type SearchCallItf interface {
+	Do() (ResponseItf, error)
+}
+
+type ResponseItf interface {
+    
 }
 
 // Wrapper methods for Google Clouds API
@@ -47,10 +57,20 @@ func (client *GCPClient) ProjectSetIamPolicy(resource string, setiampolicyreques
 	return client.Service.Projects.SetIamPolicy(resource, setiampolicyrequest)
 }
 
+// ProjectsSearch Searches for folders by Name to get the ID
+func (client *GCPClient) ProjectsSearch() *ProjectsSearchCall {
+	return client.Service.Projects.Search()
+}
+
 // ProjectGetIamPolicy is a wrapper for the Projects.GetIamPolicy method so we can create and interface to match
 // our mock client to the GCP client
 func (client *GCPClient) ProjectGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Projects.GetIamPolicy(resource, getiampolicyrequest)
+}
+
+// FoldersSearch Searches for folders by Name to get the ID
+func (client *GCPClient) FoldersSearch() *FoldersSearchCall {
+	return client.Service.Folders.Search()
 }
 
 // FolderSetIamPolicy is a wrapper for the Folders.SetIamPolicy method so we can create and interface to match
@@ -63,6 +83,11 @@ func (client *GCPClient) FolderSetIamPolicy(resource string, setiampolicyrequest
 // our mock client to the GCP client
 func (client *GCPClient) FolderGetIamPolicy(resource string, getiampolicyrequest *cloudresourcemanager.GetIamPolicyRequest) PolicyCallItf {
 	return client.Service.Folders.GetIamPolicy(resource, getiampolicyrequest)
+}
+
+// OrganizationsSearch Searches for folders by Name to get the ID
+func (client *GCPClient) OrganizationsSearch() *OrganizationsSearchCall {
+	return client.Service.Organizations.Search()
 }
 
 // OrganizationSetIamPolicy is a wrapper for the Organizations.SetIamPolicy method so we can create and interface to match
@@ -107,19 +132,22 @@ func New(client *http.Client) (*MockService, error) {
 // Organization is a mock of a google cloud Organization
 type Organization struct {
 	OrganizationID string
+	Domain         string
 	Policy         *cloudresourcemanager.Policy
 }
 
 // Project is a mock of a google cloud Project
 type Project struct {
-	ProjectID string
-	Policy    *cloudresourcemanager.Policy
+	ProjectID   string
+	DisplayName string
+	Policy      *cloudresourcemanager.Policy
 }
 
 // Folder is a mock of a google cloud Folder
 type Folder struct {
-	FolderID string
-	Policy   *cloudresourcemanager.Policy
+	FolderID    string
+	DisplayName string
+	Policy      *cloudresourcemanager.Policy
 }
 
 // OrganizationsService is a mock of google Cloud's Organization Service
@@ -136,12 +164,13 @@ func NewOrganizationsService(s *MockService) *OrganizationsService {
 
 // NewOrganization creates a new organization with the specified ID and policy on the Organizations Service
 // and returns a pointer to the created organization.  If policy isn't specified it will generate a blank one
-func (r *OrganizationsService) NewOrganization(orgID string, policy *cloudresourcemanager.Policy) *Organization {
+func (r *OrganizationsService) NewOrganization(orgID, domain string, policy *cloudresourcemanager.Policy) *Organization {
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
 	}
 	organization := &Organization{
 		OrganizationID: orgID,
+		Domain:         domain,
 		Policy:         policy,
 	}
 
@@ -159,7 +188,7 @@ func (r *OrganizationsService) GenerateOrganizations(count int, baseName string)
 	for i := 0; i < count; i++ {
 		orgID := fmt.Sprintf("%v%v-%d", "organizations/", baseName, startNumber+i)
 		policy := GeneratePolicy(nil)
-		organizations = append(organizations, r.NewOrganization(orgID, policy))
+		organizations = append(organizations, r.NewOrganization(orgID, "", policy))
 	}
 	return organizations
 }
@@ -191,6 +220,45 @@ func (r *OrganizationsService) SetIamPolicy(resource string, setiampolicyrequest
 	c.Resource = resource
 	c.Setiampolicyrequest = setiampolicyrequest
 	return c
+}
+
+// OrganizationsSearchCall contains the query information for a organization search
+type OrganizationsSearchCall struct {
+	query   string
+	service OrganizationsService
+}
+
+// SearchOrganizationsResponse contains the organizations from a search
+type SearchOrganizationsResponse struct {
+	Organizations []*Organization
+}
+
+// Search Creates a Organizations Search Call with the search parameters
+func (r *OrganizationsService) Search() *OrganizationsSearchCall {
+	c := &OrganizationsSearchCall{service: *r}
+	return c
+}
+
+// Query Adds the query parameter to the search call
+func (call *OrganizationsSearchCall) Query(query string) *OrganizationsSearchCall {
+	c := call
+	c.query = query
+	return c
+}
+
+// Do executes the Organizations Search Call and returns the response
+func (call *OrganizationsSearchCall) Do() (*SearchOrganizationsResponse, error) {
+	query := strings.Split(call.query, "=")
+	response := &SearchOrganizationsResponse{}
+	if len(query) != 2 || query[0] != "domain" {
+		return response, fmt.Errorf("invalid organization query")
+	}
+	for _, org := range call.service.OrganizationList {
+		if org.Domain == query[1] {
+			response.Organizations = append(response.Organizations, org)
+		}
+	}
+	return response, nil
 }
 
 // OrganizationsGetIamPolicyCall is a structure that is returned by Organizations.GetIamPolicy which contains the Request
@@ -253,15 +321,56 @@ func NewProjectsService(s *MockService) *ProjectsService {
 	return rs
 }
 
+// ProjectsSearchCall contains the query information for a project search
+type ProjectsSearchCall struct {
+	query   string
+	service ProjectsService
+}
+
+// SearchProjectsResponse contains the projects from a search
+type SearchProjectsResponse struct {
+	Projects []*Project
+}
+
+// Search Creates a Projects Search Call with the search parameters
+func (r *ProjectsService) Search() *ProjectsSearchCall {
+	c := &ProjectsSearchCall{service: *r}
+	return c
+}
+
+// Query Adds the query parameter to the search call
+func (call *ProjectsSearchCall) Query(query string) *ProjectsSearchCall {
+	c := call
+	c.query = query
+	return c
+}
+
+// Do executes the Projects Search Call and returns the response
+func (call *ProjectsSearchCall) Do() (*SearchProjectsResponse, error) {
+	query := strings.Split(call.query, "=")
+	response := &SearchProjectsResponse{}
+	if len(query) != 2 || query[0] != "displayName" {
+		return response, fmt.Errorf("invalid project query")
+	}
+
+	for _, project := range call.service.ProjectList {
+		if project.DisplayName == query[1] {
+			response.Projects = append(response.Projects, project)
+		}
+	}
+	return response, nil
+}
+
 // NewProject creates a new project with the specified ID and policy on the Projects Service
 // and returns a pointer to the created project.  If policy isn't specified it will generate a blank one
-func (r *ProjectsService) NewProject(projectID string, policy *cloudresourcemanager.Policy) *Project {
+func (r *ProjectsService) NewProject(projectID, projectName string, policy *cloudresourcemanager.Policy) *Project {
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
 	}
 	project := &Project{
-		ProjectID: projectID,
-		Policy:    policy,
+		ProjectID:   projectID,
+		DisplayName: projectName,
+		Policy:      policy,
 	}
 	r.ProjectList = append(r.ProjectList, project)
 	return project
@@ -276,7 +385,7 @@ func (r *ProjectsService) GenerateProjects(count int, baseName string) (projects
 	for i := 0; i < count; i++ {
 		projectID := fmt.Sprintf("%v%v-%d", "projects/", baseName, startNumber+i)
 		policy := GeneratePolicy(nil)
-		projects = append(projects, r.NewProject(projectID, policy))
+		projects = append(projects, r.NewProject(projectID, "", policy))
 	}
 	return projects
 }
@@ -374,13 +483,14 @@ func NewFoldersService(s *MockService) *FoldersService {
 
 // NewFolder creates a new folder with the specified ID and policy on the Folders Service
 // and returns a pointer to the created folder.  If policy isn't specified it will generate a blank one
-func (r *FoldersService) NewFolder(folderID string, policy *cloudresourcemanager.Policy) *Folder {
+func (r *FoldersService) NewFolder(folderID string, folderName string, policy *cloudresourcemanager.Policy) *Folder {
 	if policy == nil {
 		policy = &cloudresourcemanager.Policy{}
 	}
 	folder := &Folder{
-		FolderID: folderID,
-		Policy:   policy,
+		FolderID:    folderID,
+		DisplayName: folderName,
+		Policy:      policy,
 	}
 	r.FolderList = append(r.FolderList, folder)
 
@@ -396,7 +506,7 @@ func (r *FoldersService) GenerateFolders(count int, baseName string) (folders []
 	for i := 0; i < count; i++ {
 		folderID := fmt.Sprintf("%v%v-%d", "folders/", baseName, startNumber+i)
 		policy := GeneratePolicy(nil)
-		folders = append(folders, r.NewFolder(folderID, policy))
+		folders = append(folders, r.NewFolder(folderID, folderID, policy))
 	}
 	return folders
 }
@@ -430,6 +540,45 @@ func (r *FoldersService) SetIamPolicy(resource string, setiampolicyrequest *clou
 	c.Resource = resource
 	c.Setiampolicyrequest = setiampolicyrequest
 	return c
+}
+
+// FoldersSearchCall contains the query information for a folder search
+type FoldersSearchCall struct {
+	query   string
+	service FoldersService
+}
+
+// SearchFoldersResponse contains the folders from a search
+type SearchFoldersResponse struct {
+	Folders []*Folder
+}
+
+// Search Creates a Folders Search Call with the search parameters
+func (r *FoldersService) Search() *FoldersSearchCall {
+	c := &FoldersSearchCall{service: *r}
+	return c
+}
+
+// Query Adds the query parameter to the search call
+func (call *FoldersSearchCall) Query(query string) *FoldersSearchCall {
+	c := call
+	c.query = query
+	return c
+}
+
+// Do executes the Folders Search Call and returns the response
+func (call *FoldersSearchCall) Do() (*SearchFoldersResponse, error) {
+	query := strings.Split(call.query, "=")
+	response := &SearchFoldersResponse{}
+	if len(query) != 2 || query[0] != "displayName" {
+		return response, fmt.Errorf("invalid folder query")
+	}
+	for _, folder := range call.service.FolderList {
+		if folder.DisplayName == query[1] {
+			response.Folders = append(response.Folders, folder)
+		}
+	}
+	return response, nil
 }
 
 // FoldersGetIamPolicyCall is a structure that is returned by Folders.GetIamPolicy which contains the Request
